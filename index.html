@@ -18,9 +18,10 @@
             margin: 0; padding: 0; width: 100%; height: 100%; 
             background: var(--bg-dark); font-family: 'Courier New', Courier, monospace;
             overflow: hidden; color: #e0e0e0;
+            /* 중앙 정렬 유지 */
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* CCTV 스캔라인 & 지지직거리는 효과 */
         body::after {
             content: " ";
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -30,7 +31,6 @@
             pointer-events: none; z-index: 500; opacity: 0.5;
         }
 
-        /* 암호 스캔 레이어 */
         #scan-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: black; z-index: 100;
@@ -41,16 +41,14 @@
         .hidden-hint { position: absolute; color: #0a0a0a; font-size: 0.8rem; letter-spacing: 2px; z-index: 50; transition: color 0.4s; }
         .scanned { color: var(--accent-blue) !important; text-shadow: 0 0 10px var(--accent-blue); }
 
-        /* 로그인 UI */
-        #login-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 110; width: 320px; }
+        #login-screen { position: absolute; text-align: center; z-index: 110; width: 320px; }
         #login-screen h2 { color: var(--accent-blue); text-shadow: 0 0 10px rgba(0,229,255,0.5); letter-spacing: 5px; margin-bottom: 25px; }
         #login-screen input { background: #000; border: 1px solid var(--accent-blue); color: var(--accent-blue); padding: 15px; text-align: center; width: 100%; outline: none; font-family: inherit; }
 
-        /* 메인 게임 컨테이너 (복구된 디자인) */
         #game-container {
             display: none; width: 380px; background: var(--panel-bg);
             border: 2px solid var(--border-color); padding: 25px; 
-            position: relative; z-index: 10; margin: auto; margin-top: 5vh;
+            position: relative; z-index: 10;
             box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,229,255,0.05);
         }
 
@@ -59,7 +57,6 @@
         .info-value { font-size: 0.9rem; font-weight: bold; display: block; margin-top: 3px; }
         .timer-val { font-size: 1.8rem; color: var(--signal-green); font-weight: bold; text-shadow: 0 0 10px rgba(0,255,136,0.3); }
 
-        /* 그리드 디자인 */
         #grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; background: #080d12; padding: 5px; border: 1px solid #1a2632; }
         .tile {
             aspect-ratio: 1; background: #16222c; border: 1px solid #253341;
@@ -70,28 +67,23 @@
         .tile:hover { background: #1f2f3d; }
         .tile.open { background: var(--bg-dark); cursor: default; border-color: #0d151d; }
 
-        /* 거리 힌트 색상 (핵심 로직용) */
         .hint-red { color: var(--danger-red) !important; text-shadow: 0 0 12px var(--danger-red); }
         .hint-orange { color: #ffab40 !important; text-shadow: 0 0 8px #ffab40; }
         .hint-blue { color: var(--accent-blue) !important; text-shadow: 0 0 8px var(--accent-blue); }
         .hint-none { color: #222 !important; text-shadow: none !important; }
 
-        /* 시스템 로그 */
         .system-log {
             margin-top: 20px; background: #000; padding: 10px; font-size: 0.7rem;
             color: var(--signal-green); border-left: 3px solid var(--signal-green);
             height: 35px; overflow: hidden; line-height: 1.2;
         }
 
-        /* 결과 화면 (강화된 연출) */
         #result-screen {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 600; flex-direction: column; justify-content: center; align-items: center;
             text-align: center; background: #000;
         }
         .noise-bg { position: absolute; width: 100%; height: 100%; background: url('https://upload.wikimedia.org/wikipedia/commons/b/b1/Static_noise.gif'); opacity: 0.08; mix-blend-mode: screen; pointer-events: none; }
-        
-        /* 실패 시 붉은 경고등 */
         .fail-alert { animation: alert-pulse 1.5s infinite; }
         @keyframes alert-pulse { 
             0% { box-shadow: inset 0 0 50px rgba(0,0,0,1); }
@@ -108,7 +100,6 @@
             cursor: pointer; font-family: inherit; letter-spacing: 3px; transition: 0.3s;
         }
         .retry-btn:hover { background: #fff; color: #000; box-shadow: 0 0 20px #fff; }
-
         .timer-red { color: var(--danger-red) !important; animation: blink 0.5s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
     </style>
@@ -118,13 +109,13 @@
 <div id="scan-overlay"></div>
 <div id="hint-container">
     <div class="hidden-hint" style="top:25%; left:15%">ZHOU12 (EASY)</div>
-    <div class="hidden-hint" style="top:70%; left:70%">BRAIN9 (NORMAL)</div>
+    <div class="hidden-hint" style="top:70%; left:70%">hansheng9 (NORMAL)</div>
     <div class="hidden-hint" style="top:10%; left:75%">BOSS00 (HARD)</div>
 </div>
 
 <div id="login-screen">
-    <h2>DECODE ACCESS</h2>
-    <input type="text" id="pass-input" placeholder="PASSCODE REQUIRED" autocomplete="off">
+    <h2>ACCESS CODE</h2>
+    <input type="text" id="pass-input" placeholder="암호를 입력하세요" autocomplete="off">
 </div>
 
 <div id="game-container">
@@ -159,7 +150,6 @@
     const passInput = document.getElementById('pass-input');
     const resultScreen = document.getElementById('result-screen');
 
-    // 1. 스캐너 기믹
     window.addEventListener('mousemove', handleMove);
     window.addEventListener('touchmove', handleMove);
     function handleMove(e) {
@@ -175,12 +165,11 @@
         });
     }
 
-    // 2. 로그인 및 모드 설정
     passInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             const val = passInput.value.toUpperCase();
             if (val === 'ZHOU12') initGame("ZHOU JIN", 180, 8000, "EASY");
-            else if (val === 'BRAIN9') initGame("ZHANG HAN-SUNG", 120, 4000, "NORMAL");
+            else if (val === 'HANSHENG9') initGame("ZHANG HAN-SUNG", 120, 4000, "NORMAL");
             else if (val === 'BOSS00') initGame("THE BOSS", 120, 1500, "BOSS");
         }
     });
@@ -191,12 +180,11 @@
         document.getElementById('hint-container').style.display = 'none';
         gameContainer.style.display = 'block';
         document.getElementById('agent-name').innerText = name;
-        if(mode === "BOSS") document.getElementById('target-goal').innerText = "CLEAN SWEEP";
+        if(mode === "BOSS") document.getElementById('target-goal').innerText = "ID VERIFICATION";
         setupBoard();
         startTimer();
     }
 
-    // 3. 지뢰 및 타겟 배치 로직
     function setupBoard() {
         grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
         opened = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
@@ -235,13 +223,17 @@
         }
     }
 
-    // 4. 클릭 및 거리 기반 힌트 로직 (복구)
     function handleClick(r, c) {
         if (!gameActive || opened[r][c] || flagged[r][c]) return;
         
         if (currentMode === "BOSS") {
-            if (grid[r][c] === 'M' || grid[r][c] === 'T') showResult(false, "CONNECTION TERMINATED", "시스템 해킹 감지. 에이전트의 위치가 적에게 노출되었습니다.");
-            else { reveal(r, c); checkWin(); }
+            // 보스 모드: 누구를 누르든(M or T) 즉시 실패 (식별 실패)
+            if (grid[r][c] === 'M' || grid[r][c] === 'T') {
+                showResult(false, "CONNECTION TERMINATED", "시스템 해킹 감지. 배신자 장청에 의해 위치가 노출되었습니다.");
+            } else { 
+                reveal(r, c);
+                // 보스 모드는 안전구역 개방이 승리 조건이 아니므로 checkWin() 호출 안 함
+            }
         } else {
             if (grid[r][c] === 'T') showResult(true, "EXTRACTION SUCCESS", "장청을 확보했습니다. 작전을 종료하고 복귀하십시오.");
             else if (grid[r][c] === 'M') showResult(false, "SIGNAL COMPROMISED", "조직원의 함정에 걸렸습니다. 시스템 보안을 위해 통신을 차단합니다.");
@@ -256,12 +248,10 @@
         el.classList.add('open');
         if (grid[r][c] > 0) el.innerText = grid[r][c];
 
-        // 타겟(T)과의 거리 계산 (Euclidean Distance)
         const dist = Math.sqrt(Math.pow(r-targetPos.r, 2) + Math.pow(c-targetPos.c, 2));
         let cls = dist <= 2.2 ? 'hint-red' : (dist <= 4.3 ? 'hint-orange' : 'hint-blue');
         el.classList.add(cls);
 
-        // 일정 시간 후 힌트 사라짐
         setTimeout(() => { 
             el.classList.remove('hint-red', 'hint-orange', 'hint-blue');
             el.classList.add('hint-none');
@@ -275,20 +265,38 @@
     function handleRightClick(r, c) {
         if (!gameActive || opened[r][c]) return;
         flagged[r][c] = !flagged[r][c];
-        document.getElementById(`t-${r}-${c}`).innerText = flagged[r][c] ? "🚩" : "";
+        const tile = document.getElementById(`t-${r}-${c}`);
+        
+        // ✖️ 기호로 변경 및 수사물 스타일 적용
+        tile.innerText = flagged[r][c] ? "✖️" : "";
+        if (flagged[r][c]) {
+            tile.style.color = "var(--accent-blue)";
+            tile.style.textShadow = "0 0 10px var(--accent-blue)";
+            tile.style.fontSize = "0.9rem";
+        }
+
         if (currentMode === "BOSS") checkWin();
     }
 
     function checkWin() {
         if (currentMode !== "BOSS") return;
-        let win = true;
-        for (let r=0; r<ROWS; r++) {
-            for (let c=0; c<COLS; c++) {
-                if ((grid[r][c] === 'M' || grid[r][c] === 'T') && !flagged[r][c]) win = false;
-                if (typeof grid[r][c] === 'number' && !opened[r][c]) win = false;
+        
+        let allMinesFlagged = true;
+        let targetFlagged = false;
+
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                // 1. 일반 조직원(M)이 모두 마킹되었는지 확인
+                if (grid[r][c] === 'M' && !flagged[r][c]) allMinesFlagged = false;
+                // 2. 장청(T)이 마킹되었는지 확인
+                if (grid[r][c] === 'T' && flagged[r][c]) targetFlagged = true;
             }
         }
-        if (win) showResult(true, "MISSION COMPLETE", "구역 내 모든 조직원을 소탕했습니다. 완벽한 승리입니다.");
+
+        // 승리 조건: 모든 조직원 인증(M) 완료 AND 장청(T)은 미인증 상태
+        if (allMinesFlagged && !targetFlagged) {
+            showResult(true, "ID VERIFIED", "모든 조직원의 신원 인증을 완료했습니다. 이제 배신자 '장청'의 위치가 특정되었습니다.");
+        }
     }
 
     function startTimer() {
