@@ -9,6 +9,7 @@
             --bg-dark: #050a0f;
             --panel-bg: #0d151d;
             --accent-blue: #00e5ff;
+            --system-blue: #00aaff; /* 푸른 계열 시스템 컬러 */
             --danger-red: #ff3e3e;
             --signal-green: #00ff88;
             --border-color: #2a3b4d;
@@ -36,27 +37,26 @@
         }
         @keyframes shatter-shake { 0%, 100% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } }
 
-        /* [수정] 수사 단말기 로그인 UI */
+        /* [수정] 푸른 계열 수사 단말기 로그인 UI */
         #login-screen {
             width: 450px; height: 350px; background: #000;
-            border: 2px solid var(--signal-green); padding: 25px;
+            border: 2px solid var(--system-blue); padding: 25px;
             display: flex; flex-direction: column; z-index: 110;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 25px rgba(0, 170, 255, 0.15);
         }
-        #login-log {
-            flex-grow: 1; font-size: 0.9rem; color: var(--signal-green);
-            overflow-y: auto; line-height: 1.6;
+        
+        /* [수정] 로그인 로그: 푸른색 텍스트 및 슬라이드 바 제거 */
+        #login-log { 
+            flex-grow: 1; font-size: 0.9rem; color: var(--system-blue); 
+            overflow-y: auto; line-height: 1.6; 
+            scrollbar-width: none; -ms-overflow-style: none; /* 파이어폭스, IE */
         }
-        #login-input-area {
-            display: none; border-top: 1px solid var(--signal-green); padding-top: 15px;
-        }
-        .prompt { color: var(--accent-blue); margin-right: 10px; }
-        #login-input-area input {
-            background: transparent; border: none; color: #fff;
-            width: 250px; outline: none; font-family: inherit; font-size: 1rem;
-        }
+        #login-log::-webkit-scrollbar { display: none; } /* 크롬, 사파리 */
 
-        /* 게임 화면 */
+        #login-input-area { display: none; border-top: 1px solid var(--system-blue); padding-top: 15px; }
+        .prompt { color: var(--accent-blue); margin-right: 10px; font-weight: bold; }
+        #login-input-area input { background: transparent; border: none; color: #fff; width: 250px; outline: none; font-family: inherit; font-size: 1rem; }
+
         #game-container { display: none; width: 380px; background: var(--panel-bg); border: 2px solid var(--border-color); padding: 25px; position: relative; z-index: 10; }
         header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
         .timer-val { font-size: 1.8rem; color: var(--signal-green); font-weight: bold; }
@@ -65,16 +65,22 @@
         .tile { aspect-ratio: 1; background: #16222c; border: 1px solid #253341; display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; transition: 0.1s; }
         .tile.open { background: var(--bg-dark); cursor: default; }
         
-        /* [수정] 숫자 색깔 힌트 클래스 */
         .txt-red { color: var(--danger-red) !important; text-shadow: 0 0 8px var(--danger-red); }
         .txt-orange { color: #ffab40 !important; text-shadow: 0 0 8px #ffab40; }
         .txt-blue { color: var(--accent-blue) !important; text-shadow: 0 0 8px var(--accent-blue); }
         .txt-none { color: #556a7d; }
 
-        .system-log { margin-top: 20px; background: #000; padding: 10px; font-size: 0.75rem; color: var(--signal-green); border-left: 3px solid var(--signal-green); height: 80px; overflow-y: auto; display: flex; flex-direction: column-reverse; }
+        .system-log { 
+            margin-top: 20px; background: #000; padding: 10px; 
+            font-size: 0.75rem; color: var(--signal-green); 
+            border-left: 3px solid var(--signal-green); height: 80px; 
+            overflow-y: auto; display: flex; flex-direction: column;
+            scrollbar-width: none; -ms-overflow-style: none;
+        }
+        .system-log::-webkit-scrollbar { display: none; }
 
         #result-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 8000; flex-direction: column; justify-content: center; align-items: center; background: #000; text-align: center;}
-        .static-noise { position: absolute; width: 100%; height: 100%; background: url('https://upload.wikimedia.org/wikipedia/commons/b/b1/Static_noise.gif'); opacity: 0.1; mix-blend-mode: screen; }
+        .static-noise { position: absolute; width: 100%; height: 100%; background: url('https://upload.wikimedia.org/wikipedia/commons/b/b1/Static_noise.gif'); opacity: 0.1; mix-blend-mode: screen; pointer-events: none; }
         .red-alert { animation: red-alert-pulse 1.5s infinite; }
         @keyframes red-alert-pulse { 0%, 100% { box-shadow: inset 0 0 100px rgba(0,0,0,1); } 50% { box-shadow: inset 0 0 200px rgba(255, 0, 0, 0.3); } }
         .exploding { background: var(--danger-red) !important; transform: scale(1.1); z-index: 20; }
@@ -105,7 +111,7 @@
     <div id="noise-layer"></div>
     <h1 id="result-title" style="font-size: 2.5rem; letter-spacing: 10px;">STATUS</h1>
     <p id="result-msg" style="color: #ccc; margin: 20px 0; max-width: 80%; line-height: 1.6;"></p>
-    <button onclick="location.reload()" style="background: transparent; border: 1px solid #fff; color: #fff; padding: 15px 50px; cursor: pointer; letter-spacing: 2px;">RE-ATTEMPT</button>
+    <button id="retry-btn" style="background: transparent; border: 1px solid #fff; color: #fff; padding: 15px 50px; cursor: pointer; letter-spacing: 2px; position: relative; z-index: 8001;">RE-ATTEMPT</button>
 </div>
 
 <script>
@@ -117,12 +123,19 @@
     const inputArea = document.getElementById('login-input-area');
     const passInput = document.getElementById('pass-input');
     const logEl = document.getElementById('log-display');
+    const retryBtn = document.getElementById('retry-btn');
 
     const introMessages = [
-        "▶ INITIALIZING SECURE LINK...",
-        "▶ ENCRYPTED TUNNEL ESTABLISHED.",
-        "▶ ACCESSING 'STEEL FOREST' DATABASE...",
-        "▶ IDENTIFY YOURSELF (이름 또는 암호 입력)"
+        "▶ 보안터널 확인 중...",
+        "▶ 통신 암호화 확인.",
+        "▶ 강철삼림 데이터 베이스 접속 중....",
+        "▶ 창펑 작전 확인.",
+        "▶ 창펑 작전에 투입된 자의 신분 확인 및 작전내용 확인 중...",
+        "▶ [성명 : 장청] ",
+        "▶ [작전내용 : 조직에 잠입하여, 조직의 거래 내용 수집 및 라오셰의 정체 밝히기]",
+        "▶ [업데이트 : 창펑작전의 주도자 야오웨이하이 팀장 사망. 신변보호 필요.]",
+        "▶ 장청과 접선하여 조직의 정보를 입수하고, 장청의 신변을 확보하시오."
+        "▶ 작전개시를 위해 이름/암호를 입력하시오. (저우진/장한성)"
     ];
 
     function startIntro() {
@@ -151,13 +164,13 @@
             p.innerText = `▶ INPUT: ${val}`;
             loginLog.appendChild(p);
 
-            if (val === 'ZHOU12' || val === 'ZHOU JIN') proceedLogin("ZHOU JIN", 180, 5000, "EASY");
-            else if (val === 'BRAIN9' || val === 'ZHANG HAN-SUNG') proceedLogin("ZHANG HAN-SUNG", 120, 3000, "NORMAL");
-            else if (val === 'BOSS00' || val === 'THE BOSS') proceedLogin("THE BOSS", 120, 1500, "BOSS");
+            if (val === 'ZHOU12' || val === '저우진') proceedLogin("저우진", 180, 5000, "EASY");
+            else if (val === 'BRAIN9' || val === '장한성') proceedLogin("장한성", 120, 3000, "NORMAL");
+            else if (val === 'BOSS00' || val === 'THE BOSS') proceedLogin("치옌", 120, 1500, "BOSS");
             else {
                 const fail = document.createElement('div');
                 fail.style.color = "var(--danger-red)";
-                fail.innerText = "▶ ACCESS DENIED. 다시 입력하세요.";
+                fail.innerText = "▶ 입력 실패. 다시 입력하세요.";
                 loginLog.appendChild(fail);
                 passInput.value = "";
             }
@@ -167,7 +180,8 @@
 
     function proceedLogin(name, time, hTime, mode) {
         const success = document.createElement('div');
-        success.style.color = "var(--signal-green)";
+        success.style.color = "var(--accent-blue)";
+        success.style.textShadow = "0 0 5px var(--accent-blue)";
         success.innerText = `▶ ${name} AUTHENTICATED. 작전을 개시합니다.`;
         loginLog.appendChild(success);
         setTimeout(() => initGame(name, time, hTime, mode), 1000);
@@ -179,6 +193,9 @@
         document.getElementById('game-container').style.display = 'block';
         document.getElementById('agent-name').innerText = name;
         if(mode === "BOSS") document.getElementById('target-goal').innerText = "CLEAN SWEEP";
+        else document.getElementById('target-goal').innerText = "JANG CHENG";
+        
+        logEl.innerHTML = ""; 
         addLogEntry("작전 구역 접속 완료. 타겟의 신호 흔적 분석 시작.");
         setupBoard();
         startTimer();
@@ -225,13 +242,14 @@
         entry.style.marginBottom = "4px";
         entry.innerText = `▶ ${msg}`;
         logEl.appendChild(entry);
+        logEl.scrollTop = logEl.scrollHeight;
     }
 
     async function handleClick(r, c) {
         if (!gameActive || opened[r][c]) return;
         if (currentMode === "BOSS") {
             if (grid[r][c] === 'T') triggerShatterEffect();
-            else if (grid[r][c] === 'M') { reveal(r, c, "✅"); addLogEntry("조직원 신원 인증. 포위망 좁히는 중..."); checkWin(); }
+            else if (grid[r][c] === 'M') { reveal(r, c, "✅"); addLogEntry("조직원 신원 확인. 포위망 좁히는 중..."); checkWin(); }
             else { reveal(r, c); addLogEntry("안전 구역 데이터 스캔 완료."); }
         } else {
             if (grid[r][c] === 'T') { reveal(r, c, "⚠️"); addLogEntry("타겟 발견! 최종 보안 확인 중..."); checkWin(); }
@@ -246,18 +264,16 @@
         const el = document.getElementById(`t-${r}-${c}`);
         el.classList.add('open');
 
-        // [수정] 거리 기반 숫자 색깔 힌트
         const dist = Math.sqrt(Math.pow(r-targetPos.r, 2) + Math.pow(c-targetPos.c, 2));
         let colorClass = dist <= 2.2 ? 'txt-red' : (dist <= 4.3 ? 'txt-orange' : 'txt-blue');
         
         if (icon) {
             el.innerText = icon;
-            el.classList.add(icon === "✅" ? "txt-green" : "txt-red");
+            el.classList.add(icon === "✅" ? "txt-blue" : "txt-red");
         } else if (grid[r][c] > 0) {
             el.innerText = grid[r][c];
             el.classList.add(colorClass);
-            // 일정 시간 후 일반 색상으로 변경
-            setTimeout(() => { if(el) el.className = 'tile open txt-none'; }, hintDuration);
+            setTimeout(() => { if(el && el.classList.contains('open')) el.className = 'tile open txt-none'; }, hintDuration);
         }
         if (grid[r][c] === 0) for (let i=-1; i<=1; i++) for (let j=-1; j<=1; j++) reveal(r+i, c+j);
     }
@@ -265,7 +281,7 @@
     function triggerShatterEffect() {
         gameActive = false;
         document.getElementById('glass-shatter').style.display = 'block';
-        setTimeout(() => showResult(false, "EXPOSED", "유리창이 파괴되며 정체가 발각되었습니다. 작전 실패."), 1200);
+        setTimeout(() => showResult(false, "EXPOSED", "경찰에 의해 정체가 발각되었습니다. 작전 실패."), 1200);
     }
 
     async function triggerChainExplosion() {
@@ -274,11 +290,13 @@
         for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if(grid[r][c] === 'M') mines.push({r, c});
         for(let m of mines) {
             const el = document.getElementById(`t-${m.r}-${m.c}`);
-            el.classList.add('exploding');
-            el.innerText = "💣"; el.style.color = "#fff";
+            if(el) {
+                el.classList.add('exploding');
+                el.innerText = "💣"; el.style.color = "#fff";
+            }
             await new Promise(res => setTimeout(res, 60));
         }
-        setTimeout(() => showResult(false, "ELIMINATED", "폭탄 트랩이 작동했습니다. 에이전트 무력화됨."), 500);
+        setTimeout(() => showResult(false, "ELIMINATED", "폭탄 트랩이 작동했습니다. 장청의 신변확보에 실패했습니다."), 500);
     }
 
     function checkWin() {
@@ -289,11 +307,12 @@
             if (grid[r][c] === 'T' && opened[r][c]) foundT = true;
             if (grid[r][c] === 'M' && !opened[r][c]) minesCleared = false;
         }
-        if (currentMode === "BOSS") { if (minesCleared) showResult(true, "CLEAN SWEEP", "모든 조직원을 무력화하고 장청을 고립시켰습니다."); }
+        if (currentMode === "BOSS") { if (minesCleared) showResult(true, "CLEAN SWEEP", "배신자 장청을 발견해 처단했습니다."); }
         else { if (foundT && safeLeft === 0) showResult(true, "MISSION COMPLETE", "장청 확보 및 구역 안전이 모두 확인되었습니다."); }
     }
 
     function startTimer() {
+        clearInterval(mainTimer);
         mainTimer = setInterval(() => {
             totalSeconds--;
             const m = Math.floor(totalSeconds/60), s = totalSeconds%60;
@@ -303,15 +322,21 @@
     }
 
     function showResult(isSuccess, title, msg) {
-        gameActive = false; clearInterval(mainTimer);
+        gameActive = false; 
+        clearInterval(mainTimer);
         const screen = document.getElementById('result-screen');
         const noise = document.getElementById('noise-layer');
         if (!isSuccess) { screen.classList.add('red-alert'); noise.classList.add('static-noise'); }
+        else { screen.classList.remove('red-alert'); noise.classList.remove('static-noise'); }
         screen.style.display = 'flex';
         document.getElementById('result-title').innerText = title;
         document.getElementById('result-title').style.color = isSuccess ? "var(--signal-green)" : "var(--danger-red)";
         document.getElementById('result-msg').innerText = msg;
     }
+
+    retryBtn.addEventListener('click', () => {
+        location.reload();
+    });
 </script>
 </body>
 </html>
