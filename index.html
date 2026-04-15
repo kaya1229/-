@@ -262,6 +262,57 @@
         width: 80vw;               /* 모바일 화면 너비에 맞게 */
     }
 }
+        #instruction-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 100;
+    display: none; /* 처음엔 숨김 */
+    justify-content: center;
+    align-items: center;
+    font-family: var(--font-main);
+}
+
+#briefing-box {
+    width: 80%;
+    max-width: 500px;
+    padding: 30px;
+    border: 1px solid var(--accent-blue);
+    background: #0d1013;
+    box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
+    text-align: left;
+}
+
+#briefing-title {
+    color: var(--accent-blue);
+    font-family: var(--font-title);
+    margin-top: 0;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+}
+
+#briefing-content {
+    line-height: 1.8;
+    color: #ccc;
+    margin: 20px 0;
+    white-space: pre-wrap; /* 줄바꿈 유지 */
+}
+
+#briefing-close {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid var(--accent-blue);
+    color: var(--accent-blue);
+    cursor: pointer;
+    font-family: var(--font-title);
+    transition: 0.3s;
+}
+
+#briefing-close:hover {
+    background: var(--accent-blue);
+    color: #000;
+}
     </style>
 </head>
 <body>
@@ -291,6 +342,13 @@
 </div></div>
 
 <div id="game-container">
+    <div id="instruction-overlay">
+    <div id="briefing-box">
+        <h2 id="briefing-title">MISSION BRIEFING</h2>
+        <div id="briefing-content"></div>
+        <button id="briefing-close" onclick="startGameAfterBriefing()">CONFIRM / START</button>
+    </div>
+</div>
     <div id="main-game-channel" class="cctv-cell">
         <div class="cctv-label">CH 05 - TARGET AREA (LIVE)</div>
         <div id="global-timer">00:00</div>
@@ -418,6 +476,78 @@ function showCodes() {
         startTimer();
         addLogEntry(`시스템 온라인. ${mode} 모드 프로토콜 가동.`);
     }
+    // 설명서 문구 데이터
+const BRIEFINGS = {
+    EASY: `| 작전 목표 |
+모든 안전구역을 확보하고 장청(⚠️)을 찾아 클릭하세요.
+
+| 참고 사항 |
+1. 숫자: 칸 주변에 있는 조직원(장청 포함)의 수
+2. 숫자의 색깔: 장청과의 거리 (빨강 < 주황 < 파랑)
+※ 숫자의 색은 일정 시간이 지나면 사라집니다.
+3. 목표 완수 전 조직원을 클릭할 경우 작전 실패!`,
+
+    NORMAL: `| 작전 목표 |
+모든 안전구역을 확보하고 장청(⚠️)을 찾아 클릭하세요.
+
+| 참고 사항 |
+1. 숫자: 칸 주변에 있는 조직원(장청 포함)의 수
+2. 숫자의 색깔: 장청과의 거리 (빨강 < 주황 < 파랑)
+※ 숫자의 색은 일정 시간이 지나면 사라집니다.
+3. 목표 완수 전 조직원을 클릭할 경우 작전 실패!`,
+
+    BOSS: `| 작전 목표 |
+타겟을 제외한 모든 구역을 스캔하여 조직원들을 제거하세요.
+
+| 참고 사항 |
+1. 숫자: 칸 주변에 있는 조직원(장청 포함)의 수
+2. 숫자의 색깔: 장청과의 거리 (빨강 < 주황 < 파랑)
+※ 숫자의 색은 일정 시간이 지나면 사라집니다.
+3. 주의: 목표 완수 전 장청(⚠️)을 클릭하면 정체가 탄로 납니다!`
+};
+
+function proceedLogin(name, time, hTime, mode) {
+    // 1. 기본 설정 저장
+    gameActive = false; // 아직 게임 시작 안 함
+    totalSeconds = time;
+    hintDuration = hTime;
+    currentMode = mode;
+    
+    floodLimit = (mode === "EASY") ? 3 : 2;
+
+    // 2. 화면 전환
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('game-container').style.display = 'grid';
+    document.getElementById('agent-display').innerText = `AGENT: ${name}`;
+    
+    const gridEl = document.getElementById('grid');
+    gridEl.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+    
+    // 3. 보드 세팅 및 설명서 표시
+    setupBoard();
+    showBriefing(mode);
+}
+
+function showBriefing(mode) {
+    const overlay = document.getElementById('instruction-overlay');
+    const content = document.getElementById('briefing-content');
+    
+    overlay.style.display = 'flex';
+    content.innerText = BRIEFINGS[mode];
+    
+    // BOSS 모드면 설명서 박스 색상을 붉게/녹색으로 변경
+    if(mode === "BOSS") {
+        document.getElementById('briefing-box').style.borderColor = "#00ff00";
+        document.getElementById('briefing-title').style.color = "#00ff00";
+    }
+}
+
+function startGameAfterBriefing() {
+    document.getElementById('instruction-overlay').style.display = 'none';
+    gameActive = true;
+    startTimer(); // 여기서 타이머 시작
+    addLogEntry(`시스템 온라인. ${currentMode} 모드 프로토콜 가동.`);
+}
 
     function setupBoard() {
         grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
