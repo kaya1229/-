@@ -9,7 +9,7 @@
             --bg-dark: #050a0f;
             --panel-bg: #0d151d;
             --accent-blue: #00e5ff;
-            --system-blue: #00aaff; /* 푸른 계열 시스템 컬러 */
+            --system-blue: #00aaff;
             --danger-red: #ff3e3e;
             --signal-green: #00ff88;
             --border-color: #2a3b4d;
@@ -22,7 +22,6 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* CRT 주사선 효과 */
         body::before {
             content: " "; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
@@ -37,25 +36,28 @@
         }
         @keyframes shatter-shake { 0%, 100% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -1px); } }
 
-        /* [수정] 푸른 계열 수사 단말기 로그인 UI */
         #login-screen {
             width: 450px; height: 350px; background: #000;
             border: 2px solid var(--system-blue); padding: 25px;
             display: flex; flex-direction: column; z-index: 110;
             box-shadow: 0 0 25px rgba(0, 170, 255, 0.15);
+            transition: all 0.5s ease;
         }
         
-        /* [수정] 로그인 로그: 푸른색 텍스트 및 슬라이드 바 제거 */
         #login-log { 
             flex-grow: 1; font-size: 0.9rem; color: var(--system-blue); 
             overflow-y: auto; line-height: 1.6; 
-            scrollbar-width: none; -ms-overflow-style: none; /* 파이어폭스, IE */
+            scrollbar-width: none; -ms-overflow-style: none;
         }
-        #login-log::-webkit-scrollbar { display: none; } /* 크롬, 사파리 */
+        #login-log::-webkit-scrollbar { display: none; }
 
         #login-input-area { display: none; border-top: 1px solid var(--system-blue); padding-top: 15px; }
         .prompt { color: var(--accent-blue); margin-right: 10px; font-weight: bold; }
         #login-input-area input { background: transparent; border: none; color: #fff; width: 250px; outline: none; font-family: inherit; font-size: 1rem; }
+
+        /* BOSS 모드 시각 효과 클래스 */
+        .boss-alert-ui { border-color: var(--danger-red) !important; box-shadow: 0 0 30px rgba(255, 62, 62, 0.4) !important; }
+        .boss-alert-text { color: var(--danger-red) !important; text-shadow: 0 0 5px var(--danger-red) !important; }
 
         #game-container { display: none; width: 380px; background: var(--panel-bg); border: 2px solid var(--border-color); padding: 25px; position: relative; z-index: 10; }
         header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
@@ -93,7 +95,7 @@
 <div id="login-screen">
     <div id="login-log"></div>
     <div id="login-input-area">
-        <span class="prompt">ADMIN@STEEL_FOREST:~$</span><input type="text" id="pass-input" autocomplete="off">
+        <span class="prompt" id="terminal-prompt">ADMIN@STEEL_FOREST:~$</span><input type="text" id="pass-input" autocomplete="off">
     </div>
 </div>
 
@@ -119,6 +121,7 @@
     let grid = [], opened = [], targetPos = { r: 0, c: 0 };
     let gameActive = false, totalSeconds = 0, hintDuration = 3000, mainTimer, currentMode = "";
 
+    const loginScreen = document.getElementById('login-screen');
     const loginLog = document.getElementById('login-log');
     const inputArea = document.getElementById('login-input-area');
     const passInput = document.getElementById('pass-input');
@@ -134,7 +137,7 @@
         "▶ [성명 : 장청] ",
         "▶ [작전내용 : 조직에 잠입하여, 조직의 거래 내용 수집 및 라오셰의 정체 밝히기]",
         "▶ [업데이트 : 창펑작전의 주도자 야오웨이하이 팀장 사망. 신변보호 필요.]",
-        "▶ 장청과 접선하여 조직의 정보를 입수하고, 장청의 신변을 확보하시오."
+        "▶ 장청과 접선하여 조직의 정보를 입수하고, 장청의 신변을 확보하시오.",
         "▶ 작전개시를 위해 이름/암호를 입력하시오. (저우진/장한성)"
     ];
 
@@ -154,7 +157,7 @@
             }
         }, 600);
     }
-    startIntro();
+    window.onload = startIntro;
 
     passInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -166,7 +169,7 @@
 
             if (val === 'ZHOU12' || val === '저우진') proceedLogin("저우진", 180, 5000, "EASY");
             else if (val === 'BRAIN9' || val === '장한성') proceedLogin("장한성", 120, 3000, "NORMAL");
-            else if (val === 'BOSS00' || val === 'THE BOSS') proceedLogin("치옌", 120, 1500, "BOSS");
+            else if (val === 'BOSS00' || val === '치옌') proceedLogin("치옌", 120, 1500, "BOSS");
             else {
                 const fail = document.createElement('div');
                 fail.style.color = "var(--danger-red)";
@@ -179,12 +182,26 @@
     });
 
     function proceedLogin(name, time, hTime, mode) {
-        const success = document.createElement('div');
-        success.style.color = "var(--accent-blue)";
-        success.style.textShadow = "0 0 5px var(--accent-blue)";
-        success.innerText = `▶ ${name} AUTHENTICATED. 작전을 개시합니다.`;
-        loginLog.appendChild(success);
-        setTimeout(() => initGame(name, time, hTime, mode), 1000);
+        if (mode === "BOSS") {
+            // BOSS 모드 전용 붉은색 연출
+            loginScreen.classList.add('boss-alert-ui');
+            loginLog.classList.add('boss-alert-text');
+            document.getElementById('terminal-prompt').classList.add('boss-alert-text');
+            
+            const hackMsg = document.createElement('div');
+            hackMsg.className = 'boss-alert-text';
+            hackMsg.innerText = "▶ 해킹이 완료되었습니다. 배신자 장청 처단 작전을 시작합니다.";
+            loginLog.appendChild(hackMsg);
+        } else {
+            const success = document.createElement('div');
+            success.style.color = "var(--accent-blue)";
+            success.style.textShadow = "0 0 5px var(--accent-blue)";
+            success.innerText = `▶ ${name} AUTHENTICATED. 작전을 개시합니다.`;
+            loginLog.appendChild(success);
+        }
+        
+        loginLog.scrollTop = loginLog.scrollHeight;
+        setTimeout(() => initGame(name, time, hTime, mode), 1500);
     }
 
     function initGame(name, time, hTime, mode) {
