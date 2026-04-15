@@ -21,102 +21,107 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* [연출] 유리창 깨지는 효과 레이어 */
+        /* [수정] 보내주신 이미지로 유리창 깨짐 연출 */
         #glass-shatter {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://www.transparenttextures.com/patterns/glass-shattering.png'); /* 유리 파편 패턴 */
-            z-index: 1000; display: none; pointer-events: none;
-            background-size: cover; animation: shatter-shake 0.2s infinite;
+            background: url('https://www.transparenttextures.com/patterns/glass-shattering.png'); /* 유리창 깨짐 이미지 */
+            background-size: cover; z-index: 1000; display: none; pointer-events: none;
+            filter: contrast(200%) invert(1); /* 파편이 선명하게 보이도록 보정 */
+            animation: shatter-shake 0.15s infinite;
         }
 
         @keyframes shatter-shake {
-            0% { transform: translate(2px, 2px); filter: contrast(200%) invert(1); }
-            50% { transform: translate(-2px, -2px); filter: contrast(150%); }
-            100% { transform: translate(0, 0); }
+            0%, 100% { transform: translate(1px, 1px); }
+            50% { transform: translate(-1px, -1px); }
         }
 
-        /* [연출] 연쇄 폭발 효과 */
-        .exploding {
-            background: var(--danger-red) !important;
-            box-shadow: 0 0 30px var(--danger-red);
-            transform: scale(1.2);
-            z-index: 100;
-        }
-
-        /* 공통 스타일 생략(이전과 동일) */
+        /* 공통 스타일 유지 */
         body::after { content: " "; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 500; opacity: 0.5; }
-        #scan-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 100; --mask-x: -100%; --mask-y: -100%; mask-image: radial-gradient(circle 120px at var(--mask-x) var(--mask-y), black 20%, transparent 100%); -webkit-mask-image: radial-gradient(circle 120px at var(--mask-x) var(--mask-y), black 20%, transparent 100%); }
-        #login-screen { position: absolute; text-align: center; z-index: 110; width: 320px; display: flex; flex-direction: column; align-items: center; }
-        #login-screen h2 { color: var(--accent-blue); text-shadow: 0 0 10px rgba(0,229,255,0.5); letter-spacing: 5px; margin-bottom: 25px; }
-        #login-screen input { background: #000; border: 1px solid var(--accent-blue); color: var(--accent-blue); padding: 15px; text-align: center; width: 100%; outline: none; font-family: inherit; }
-        #game-container { display: none; width: 380px; background: var(--panel-bg); border: 2px solid var(--border-color); padding: 25px; position: relative; z-index: 10; box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,229,255,0.05); }
+        #game-container { display: none; width: 380px; background: var(--panel-bg); border: 2px solid var(--border-color); padding: 25px; position: relative; z-index: 10; box-shadow: 0 0 40px rgba(0,0,0,0.8); }
         header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        .info-label { font-size: 0.6rem; color: #556a7d; letter-spacing: 1px; }
-        .info-value { font-size: 0.9rem; font-weight: bold; display: block; margin-top: 3px; }
+        .info-label { font-size: 0.6rem; color: #556a7d; }
         .timer-val { font-size: 1.8rem; color: var(--signal-green); font-weight: bold; }
-        #grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; background: #080d12; padding: 5px; border: 1px solid #1a2632; }
-        .tile { aspect-ratio: 1; background: #16222c; border: 1px solid #253341; display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; transition: all 0.1s; }
-        .tile.open { background: var(--bg-dark); cursor: default; }
-        .system-log { margin-top: 20px; background: #000; padding: 10px; font-size: 0.7rem; color: var(--signal-green); border-left: 3px solid var(--signal-green); height: 60px; overflow-y: scroll; display: flex; flex-direction: column-reverse; }
-        #result-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 600; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: #000; }
-        .retry-btn { background: transparent; border: 1px solid #fff; color: #fff; padding: 15px 50px; cursor: pointer; font-family: inherit; margin-top: 20px; }
+        #grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; background: #080d12; padding: 5px; }
+        .tile { aspect-ratio: 1; background: #16222c; border: 1px solid #253341; display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; font-size: 1.2rem; transition: 0.1s; color: transparent; }
+        .tile.open { background: var(--bg-dark); cursor: default; color: inherit; }
+        
+        /* [복구] 색상 힌트 스타일 */
+        .hint-red { background: rgba(255, 62, 62, 0.4) !important; color: #fff !important; }
+        .hint-orange { background: rgba(255, 171, 64, 0.4) !important; color: #fff !important; }
+        .hint-blue { background: rgba(0, 229, 255, 0.4) !important; color: #fff !important; }
+
+        .system-log { margin-top: 20px; background: #000; padding: 10px; font-size: 0.7rem; color: var(--signal-green); border-left: 3px solid var(--signal-green); height: 60px; overflow-y: auto; display: flex; flex-direction: column-reverse; }
+        .log-entry { margin-bottom: 4px; line-height: 1.3; }
+
+        /* [복구 및 수정] 실패 시 노이즈 및 붉은 경고등 */
+        #result-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; flex-direction: column; justify-content: center; align-items: center; background: #000; text-align: center;}
+        
+        .static-noise { 
+            position: absolute; width: 100%; height: 100%; 
+            background: url('https://upload.wikimedia.org/wikipedia/commons/b/b1/Static_noise.gif'); /* 노이즈 GIF */
+            opacity: 0.1; mix-blend-mode: screen; pointer-events: none;
+        }
+
+        /* 붉은 사이렌 애니메이션 */
+        .red-alert { animation: red-alert-pulse 1.5s infinite; }
+        @keyframes red-alert-pulse {
+            0%, 100% { box-shadow: inset 0 0 100px rgba(0,0,0,1); }
+            50% { box-shadow: inset 0 0 200px rgba(255, 0, 0, 0.3); }
+        }
+
+        .exploding { background: var(--danger-red) !important; transform: scale(1.1); transition: 0.05s; }
     </style>
 </head>
 <body>
 
 <div id="glass-shatter"></div>
-<div id="scan-overlay"></div>
-<div id="login-screen">
-    <h2>DECODE ACCESS</h2>
-    <input type="text" id="pass-input" placeholder="PASSCODE REQUIRED" autocomplete="off">
+
+<div id="login-screen" style="position: absolute; text-align: center; z-index: 110; width: 320px;">
+    <h2 style="color: var(--accent-blue); letter-spacing: 5px; margin-bottom: 25px;">DECODE ACCESS</h2>
+    <input type="text" id="pass-input" placeholder="PASSCODE REQUIRED" style="background: #000; border: 1px solid var(--accent-blue); color: var(--accent-blue); padding: 15px; width: 100%; text-align: center;">
 </div>
 
 <div id="game-container">
     <header>
-        <div><span class="info-label">AGENT</span><span class="info-value" id="agent-name" style="color:var(--accent-blue)">---</span></div>
+        <div><span class="info-label">AGENT</span><span id="agent-name" style="color:var(--accent-blue); display:block;">---</span></div>
         <div style="text-align:center"><span class="info-label">SIG. TRACE</span><div id="global-timer" class="timer-val">00:00</div></div>
-        <div style="text-align:right"><span class="info-label">OBJECTIVE</span><span class="info-value" id="target-goal" style="color:var(--danger-red)">JANG CHENG</span></div>
+        <div style="text-align:right"><span class="info-label">OBJECTIVE</span><span id="target-goal" style="color:var(--danger-red); display:block;">JANG CHENG</span></div>
     </header>
     <div id="grid"></div>
     <div class="system-log" id="log-display"></div>
 </div>
 
 <div id="result-screen">
-    <h1 id="result-title" style="font-size: 2.5rem; letter-spacing: 10px;">STATUS</h1>
-    <p id="result-msg" style="color: #ccc; margin: 20px 0;"></p>
-    <button class="retry-btn" onclick="location.reload()">RE-ATTEMPT</button>
+    <div id="noise-layer"></div> /* 노이즈가 들어갈 자리 */
+    <h1 id="result-title" style="font-size: 2.5rem; letter-spacing: 10px; position: relative;">STATUS</h1>
+    <p id="result-msg" style="color: #ccc; margin: 20px 0; position: relative; max-width: 80%;"></p>
+    <button onclick="location.reload()" style="background: transparent; border: 1px solid #fff; color: #fff; padding: 15px 50px; cursor: pointer; position: relative; letter-spacing: 3px;">RE-ATTEMPT</button>
 </div>
 
 <script>
     const ROWS = 10, COLS = 8, MINES = 12;
-    let grid = [], opened = [], flagged = [], targetPos = { r: 0, c: 0 };
-    let gameActive = false, totalSeconds = 0, hintDuration = 4000, mainTimer, currentMode = "";
+    let grid = [], opened = [], targetPos = { r: 0, c: 0 };
+    let gameActive = false, totalSeconds = 0, hintDuration = 3000, mainTimer, currentMode = "";
 
-    const overlay = document.getElementById('scan-overlay');
-    const loginScreen = document.getElementById('login-screen');
-    const gameContainer = document.getElementById('game-container');
     const passInput = document.getElementById('pass-input');
     const logEl = document.getElementById('log-display');
-
-    window.addEventListener('mousemove', (e) => {
-        overlay.style.setProperty('--mask-x', `${e.clientX}px`);
-        overlay.style.setProperty('--mask-y', `${e.clientY}px`);
-    });
 
     passInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             const val = passInput.value.toUpperCase();
-            if (val === 'ZHOU12') initGame("ZHOU JIN", 180, 8000, "EASY");
-            else if (val === 'BRAIN9') initGame("ZHANG HAN-SUNG", 120, 4000, "NORMAL");
+            if (val === 'ZHOU12') initGame("ZHOU JIN", 180, 5000, "EASY");
+            else if (val === 'BRAIN9') initGame("ZHANG HAN-SUNG", 120, 3000, "NORMAL");
             else if (val === 'BOSS00') initGame("THE BOSS", 120, 1500, "BOSS");
         }
     });
 
     function initGame(name, time, hTime, mode) {
         gameActive = true; totalSeconds = time; hintDuration = hTime; currentMode = mode;
-        loginScreen.style.display = 'none'; overlay.style.display = 'none';
-        gameContainer.style.display = 'block';
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('game-container').style.display = 'block';
         document.getElementById('agent-name').innerText = name;
+        if(mode === "BOSS") document.getElementById('target-goal').innerText = "CLEAN SWEEP";
+        addLogEntry("[SYSTEM] 구역 진입 완료. 타겟의 데이터 흔적을 분석하십시오.");
         setupBoard();
         startTimer();
     }
@@ -124,7 +129,6 @@
     function setupBoard() {
         grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
         opened = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
-        flagged = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
         let tSet = false, mSet = 0;
         while (!tSet || mSet < MINES - 1) {
             let r = Math.floor(Math.random()*ROWS), c = Math.floor(Math.random()*COLS);
@@ -158,92 +162,90 @@
         }
     }
 
+    function addLogEntry(msg) {
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerText = `> ${msg}`;
+        logEl.appendChild(entry);
+    }
+
     async function handleClick(r, c) {
         if (!gameActive || opened[r][c]) return;
 
         if (currentMode === "BOSS") {
-            if (grid[r][c] === 'T') {
-                triggerShatterEffect();
-            } else if (grid[r][c] === 'M') {
-                reveal(r, c, "✅"); // 보스 모드: 조직원 인증
+            if (grid[r][c] === 'T') triggerShatterEffect();
+            else if (grid[r][c] === 'M') {
+                reveal(r, c, "✅");
+                addLogEntry("조직원 신원 인증 완료. 배신자 압박 중...");
                 checkWin();
-            } else {
-                reveal(r, c);
-            }
+            } else { reveal(r, c); addLogEntry("안전 구역 데이터 확보."); }
         } else {
+            // [일반 모드]
             if (grid[r][c] === 'T') {
                 reveal(r, c, "⚠️");
-                setTimeout(() => showResult(true, "SUCCESS", "장청을 확보했습니다."), 500);
+                addLogEntry("장청 발견! 모든 구역 확보 여부 확인 중...");
+                checkWin();
             } else if (grid[r][c] === 'M') {
-                await triggerChainExplosion(); // 일반 모드: 연쇄 폭발
+                await triggerChainExplosion();
             } else {
                 reveal(r, c);
+                addLogEntry("안전 구역 확보. 거리 분석 중...");
+                checkWin();
             }
         }
     }
 
-    // [연출] 유리창 깨짐 효과
-    function triggerShatterEffect() {
-        gameActive = false;
-        document.getElementById('glass-shatter').style.display = 'block';
-        setTimeout(() => {
-            showResult(false, "EXPOSED", "유리창이 깨지며 정체가 탄로났습니다. 잠입 실패.");
-        }, 1000);
-    }
-
-    // [연출] 연쇄 폭발 효과
-    async function triggerChainExplosion() {
-        gameActive = false;
-        const mines = [];
-        for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) {
-            if(grid[r][c] === 'M') mines.push({r, c});
-        }
-        
-        for(let mine of mines) {
-            const el = document.getElementById(`t-${mine.r}-${mine.c}`);
-            el.classList.add('exploding');
-            el.innerText = "💣";
-            await new Promise(res => setTimeout(res, 80)); // 연쇄 폭발 속도
-        }
-        
-        setTimeout(() => {
-            showResult(false, "MISSION FAILED", "조직원의 폭탄이 연쇄적으로 터졌습니다. 작전 실패.");
-        }, 500);
-    }
-
-    function reveal(r, c, specialIcon = null) {
+    function reveal(r, c, icon = null) {
         if (r<0 || r>=ROWS || c<0 || c>=COLS || opened[r][c]) return;
         opened[r][c] = true;
         const el = document.getElementById(`t-${r}-${c}`);
         el.classList.add('open');
         
-        if (specialIcon) {
-            el.innerText = specialIcon;
-            el.style.color = specialIcon === "✅" ? "var(--signal-green)" : "var(--danger-red)";
+        if (icon) {
+            el.innerText = icon;
+            el.style.color = (icon === "✅") ? "var(--signal-green)" : "var(--danger-red)";
         } else if (grid[r][c] > 0) {
             el.innerText = grid[r][c];
         }
 
-        // 거리 기반 힌트 색상 (잠시 후 사라짐)
         const dist = Math.sqrt(Math.pow(r-targetPos.r, 2) + Math.pow(c-targetPos.c, 2));
-        let cls = dist <= 2.2 ? 'hint-red' : (dist <= 4.3 ? 'hint-orange' : 'hint-blue');
-        el.classList.add(cls);
+        let hintClass = dist <= 2.2 ? 'hint-red' : (dist <= 4.3 ? 'hint-orange' : 'hint-blue');
+        el.classList.add(hintClass);
         setTimeout(() => el.classList.remove('hint-red', 'hint-orange', 'hint-blue'), hintDuration);
 
-        if (grid[r][c] === 0) {
-            for (let i=-1; i<=1; i++) for (let j=-1; j<=1; j++) reveal(r+i, c+j);
+        if (grid[r][c] === 0) for (let i=-1; i<=1; i++) for (let j=-1; j<=1; j++) reveal(r+i, c+j);
+    }
+
+    // [개선] 보내주신 파편 이미지로 교체
+    function triggerShatterEffect() {
+        gameActive = false;
+        document.getElementById('glass-shatter').style.display = 'block';
+        setTimeout(() => showResult(false, "EXPOSED", "경찰에게 정체가 발각되었습니다."), 1200);
+    }
+
+    async function triggerChainExplosion() {
+        gameActive = false;
+        const mines = [];
+        for(let r=0; r<ROWS; r++) for(let c=0; c<COLS; c++) if(grid[r][c] === 'M') mines.push({r, c});
+        for(let m of mines) {
+            const el = document.getElementById(`t-${m.r}-${m.c}`);
+            el.classList.add('exploding');
+            el.innerText = "💣"; el.style.color = "#fff";
+            await new Promise(res => setTimeout(res, 50));
         }
+        setTimeout(() => showResult(false, "ELIMINATED", "조직의 공격으로 장청과의 접선에 실패했습니다."), 500);
     }
 
     function checkWin() {
-        if (currentMode !== "BOSS") return;
-        let allMinesOpened = true;
-        for (let r = 0; r < ROWS; r++) {
-            for (let c = 0; c < COLS; c++) {
-                if (grid[r][c] === 'M' && !opened[r][c]) { allMinesOpened = false; break; }
-            }
+        if (!gameActive) return;
+        let safeTilesLeft = 0; let jangChengFound = false; let allMinesCleared = true;
+        for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
+            if (typeof grid[r][c] === 'number' && !opened[r][c]) safeTilesLeft++;
+            if (grid[r][c] === 'T' && opened[r][c]) jangChengFound = true;
+            if (grid[r][c] === 'M' && !opened[r][c]) allMinesCleared = false;
         }
-        if (allMinesOpened) showResult(true, "CLEAN SWEEP", "모든 조직원을 소탕하고 장청을 고립시켰습니다.");
+        if (currentMode === "BOSS") { if (allMinesCleared) showResult(true, "CLEAN SWEEP", "배신자를 처단했습니다."); }
+        else { if (jangChengFound && safeTilesLeft === 0) showResult(true, "MISSION COMPLETE", "장청 확보 및 구역 안전이 확인되었습니다."); }
     }
 
     function startTimer() {
@@ -251,16 +253,28 @@
             totalSeconds--;
             const m = Math.floor(totalSeconds/60), s = totalSeconds%60;
             document.getElementById('global-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            if (totalSeconds <= 0) showResult(false, "SIGNAL LOST", "제한 시간 초과.");
+            if (totalSeconds <= 0) showResult(false, "SIGNAL LOST", "데이터 수신 시간 초과.");
         }, 1000);
     }
 
+    // [복구] 실패 시 노이즈 및 사이렌 효과 적용
     function showResult(isSuccess, title, msg) {
         gameActive = false; clearInterval(mainTimer);
-        document.getElementById('result-screen').style.display = 'flex';
+        const screen = document.getElementById('result-screen');
+        const noiseLayer = document.getElementById('noise-layer');
+        
+        if (!isSuccess) {
+            screen.classList.add('red-alert'); // 사이렌 애니메이션
+            noiseLayer.classList.add('static-noise'); // 지지직 노이즈
+        } else {
+            screen.classList.remove('red-alert');
+            noiseLayer.classList.remove('static-noise');
+        }
+
+        screen.style.display = 'flex';
         document.getElementById('result-title').innerText = title;
-        document.getElementById('result-msg').innerText = msg;
         document.getElementById('result-title').style.color = isSuccess ? "var(--signal-green)" : "var(--danger-red)";
+        document.getElementById('result-msg').innerText = msg;
     }
 </script>
 </body>
