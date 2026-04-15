@@ -41,85 +41,59 @@
     margin-bottom: 20px;
 }
 
-/* 로고 상단 한자 스타일 (컴퓨터 글씨체 느낌) */
+/* 1. 상단 한자 스타일 수정 */
 #logo-title {
     font-family: 'Nanum Gothic Coding', monospace;
     font-size: 1.6rem;
     font-weight: bold;
     letter-spacing: 8px;
-    color: var(--accent-blue);
-    text-shadow: 0 0 10px var(--accent-blue);
+    color: #ffffff; /* 기본 상태: 흰색 */
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.5); /* 은은한 기본 광채 */
     cursor: pointer;
     margin-bottom: 15px;
-    transition: all 0.3s ease-in-out;
+    transition: all 0.4s ease; /* 부드러운 전환 */
     user-select: none;
+    opacity: 0.9;
 }
 
 #logo-title:hover {
-    color: #fff;
-    text-shadow: 0 0 20px var(--accent-blue), 0 0 5px #fff;
-    transform: scale(1.1);
+    color: var(--accent-blue); /* 커서 닿으면 블루로 변경 */
+    text-shadow: 0 0 15px var(--accent-blue), 0 0 5px #fff; /* 강렬한 빛 반사 */
+    transform: translateY(-3px); /* 살짝 위로 이동하는 느낌 */
+    opacity: 1;
 }
 
-/* BOSS 모드 활성화 시 한자 스타일 (녹색) */
-#logo-title.boss-active {
-    color: #00ff00 !important;
-    text-shadow: 0 0 15px #00ff00 !important;
-}
-
-/* 메인 로고 이미지 스타일 (아이디어 2번 적용) */
+/* 2. 메인 로고 이미지 스타일 수정 (진동 삭제, 밝기 상향) */
 #intro-image {
     width: 300px; 
     cursor: pointer; 
-    transition: all 0.3s ease-in-out;
-    opacity: 0.6; 
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); /* 부드러운 확대 가속도 */
+    opacity: 0.85; /* 기본 상태를 좀 더 밝게 (기존 0.6 -> 0.85) */
     
-    /* 배경 투명화 + 블루 선 필터 */
     filter: 
         grayscale(100%)
         screen
         invert(100%) 
-        sepia(100%) hue-rotate(180deg) saturate(300%) 
-        drop-shadow(0 0 5px var(--accent-blue));
+        sepia(100%) hue-rotate(180deg) saturate(200%) /* 채도는 약간 낮춰서 깔끔하게 */
+        drop-shadow(0 0 5px rgba(0, 229, 255, 0.3));
 }
 
 #intro-image:hover { 
-    opacity: 1; 
+    opacity: 1;
+    transform: scale(1.03); /* 크기만 살짝 커지는 반응 */
     filter: 
         grayscale(100%) screen invert(100%) 
-        sepia(100%) hue-rotate(180deg) saturate(500%) brightness(1.3)
+        sepia(100%) hue-rotate(180deg) saturate(400%) brightness(1.2)
         drop-shadow(0 0 15px var(--accent-blue));
-    animation: glitch-shake 0.8s infinite; /* 미세 진동 */
-}
-   #intro-image::before {
-    content: "钢铁森林"; /* 출력할 한자 */
-    position: absolute;
-    top: -40px; /* 로고 이미지 위쪽으로 배치 */
-    left: 50%;
-    transform: translateX(-50%); /* 중앙 정렬 */
-    
-    /* [핵심] 컴퓨터 글씨체(Monospace) 느낌 연출 */
-    font-family: 'Nanum Gothic Coding', monospace; /* 기존 폰트 활용 */
-    font-size: 1.4rem;
-    font-weight: bold;
-    letter-spacing: 5px; /* 글자 간격을 벌려 디지털 느낌 강조 */
-    
-    /* 색상 및 광채 (시스템 블루 테마) */
-    color: var(--accent-blue);
-    text-shadow: 0 0 10px var(--accent-blue), 0 0 5px #fff;
-    
-    /* 미세한 깜빡임 효과 (선택 사항) */
-    animation: text-blink 2s infinite;
+    /* animation: glitch-shake ... (이 부분은 삭제됨) */
 }
 
-@keyframes system-shock {
-    0% { background-color: #000; }
-    10% { background-color: #fff; }
-    20% { background-color: #000; }
-    30% { background-color: #fff; }
-    100% { background-color: #000; }
+/* BOSS 모드 활성화 시 한자 강제 색상 (기존 유지) */
+#logo-title.boss-active {
+    color: #00ff00 !important;
+    text-shadow: 0 0 15px #00ff00 !important;
 }
-
+  
 
 /* [추가] 지지직거리는 애니메이션 정의 */
 @keyframes glitch-shake {
