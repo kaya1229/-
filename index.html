@@ -115,17 +115,17 @@
 <body>
 
 <div id="login-screen">
-    <img src="steel-forest-logo.jpeg" id="intro-image" alt="강철삼림" onclick="showCodes()">
+    <img src="steel-forest-logo.png" id="intro-image" alt="강철삼림" onclick="showCodes()">
     <div id="access-codes">
         승인된 접속 코드:<br>
         [ 저우진 ] - EASY MODE<br>
         [ 장한성 ] - NORMAL MODE<br>
-        [ 치옌 ] - BOSS MODE
     </div>
     <div id="login-input-area">
         <input type="text" id="pass-input" placeholder="ACCESS CODE" autocomplete="off">
     </div>
     <div id="terminal-footer">made by deokjilkkk</div>
+    <div id="terminal-footer" onclick="unlockHiddenPath()" style="cursor: pointer;">made by deokjilkkk</div>
 </div>
 
 <div id="game-container">
@@ -162,6 +162,7 @@
     let grid = [], opened = [], targetPos = { r: 0, c: 0 };
     let gameActive = false, totalSeconds = 0, hintDuration = 3000, mainTimer, currentMode = "";
     let floodLimit = 2; // <--- 추가: 한 번에 확산될 최대 단계(깊이)
+    let isHiddenPathUnlocked = false; 
     // [수정] 각 상태별로 여러 개의 이미지를 배열로 등록
 const IMG_PATH = "./"; 
 const IMAGES = {
@@ -172,11 +173,49 @@ const IMAGES = {
     idle: "idle.png"                          // 초기 화면
 };
 
-    function showCodes() {
-        document.getElementById('intro-image').style.display = 'none';
-        document.getElementById('access-codes').style.display = 'block';
-        document.getElementById('pass-input').focus();
+    // 1. 하단 푸터 클릭 시 로고를 boss.jpeg로 변경
+function unlockHiddenPath() {
+    isHiddenPathUnlocked = true;
+    const logo = document.getElementById('intro-image');
+    
+    // 로고 이미지를 boss.jpeg로 변경
+    logo.src = "boss.jpeg"; 
+    
+    // 시각적 효과 (강렬한 붉은 광채)
+    logo.style.filter = "drop-shadow(0 0 20px var(--danger-red)) brightness(1.2)";
+    
+    addLogEntry("경고: 비인가 경로를 통한 데이터 오버라이드 감지.");
+}
+
+// 2. 로고 클릭 시 실행 (isHiddenPathUnlocked 상태에 따라 텍스트 변경)
+function showCodes() {
+    const codesArea = document.getElementById('access-codes');
+    const introImg = document.getElementById('intro-image');
+    
+    introImg.style.display = 'none';
+    codesArea.style.display = 'block';
+
+    if (isHiddenPathUnlocked) {
+        // 푸터를 누른 뒤 로고를 눌렀을 때 (치옌 포함)
+        codesArea.innerHTML = `
+            승인된 접속 코드 (보안 등급: CRITICAL):<br>
+            [ 저우진 ] - EASY MODE<br>
+            [ 장한성 ] - NORMAL MODE<br>
+            <span style="color:var(--danger-red); text-shadow: 0 0 10px var(--danger-red); font-weight:bold;">
+                [ 치옌 ] - BOSS MODE (UNLOCKED)
+            </span>
+        `;
+    } else {
+        // 그냥 로고를 눌렀을 때
+        codesArea.innerHTML = `
+            승인된 접속 코드:<br>
+            [ 저우진 ] - EASY MODE<br>
+            [ 장한성 ] - NORMAL MODE
+        `;
     }
+
+    document.getElementById('pass-input').focus();
+}
 
     document.getElementById('pass-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
