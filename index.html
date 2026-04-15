@@ -28,13 +28,12 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* [개편] 깔끔한 로그인 화면 */
         #login-screen {
             width: 500px; text-align: center; display: flex; flex-direction: column; align-items: center;
         }
         #intro-image {
             width: 300px; cursor: pointer; transition: opacity 0.5s, transform 0.3s;
-            opacity: 0.7; filter: drop-shadow(0 0 15px var(--accent-blue)) cyan;
+            opacity: 0.7; filter: drop-shadow(0 0 15px var(--accent-blue));
         }
         #intro-image:hover { transform: scale(1.05); opacity: 1; }
         
@@ -50,9 +49,8 @@
         }
         #terminal-footer { margin-top: 30px; font-size: 0.7rem; color: #444; font-family: var(--font-title); }
 
-        /* [개편] 게임 컨테이너 */
         #game-container {
-            display: none; width: 95vw; height: 90vh; max-width: 1100px;
+            display: none; width: 95vw; height: 90vh; max-width: 1200px;
             background-color: var(--bg-dark); background-image: var(--texture-iron);
             border: 15px solid #333; grid-template-columns: 1fr 350px; grid-template-rows: 1fr 1fr;
             gap: 15px; padding: 20px; box-shadow: inset 0 0 50px #000;
@@ -61,29 +59,33 @@
         .cctv-cell { background: #000; border: 1px solid #222; position: relative; overflow: hidden; display: flex; flex-direction: column; }
         .cctv-label { position: absolute; top: 8px; left: 10px; font-size: 0.7rem; color: #555; font-family: var(--font-title); z-index: 10; }
 
-        /* 메인 게임 피드 */
-        #main-game-channel { grid-row: 1 / 3; padding: 20px; }
+        #main-game-channel { grid-row: 1 / 3; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #global-timer { position: absolute; top: 10px; right: 20px; font-family: var(--font-title); color: var(--signal-green); font-size: 1.8rem; text-shadow: 0 0 10px var(--signal-green); }
-        #grid { flex-grow: 1; display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; align-self: center; width: 100%; max-width: 450px; margin-top: 30px;}
+        
+        /* 그리드 영역 확장 */
+        #grid { 
+            display: grid; 
+            gap: 4px; 
+            width: 100%; 
+            max-width: 750px; 
+            margin-top: 30px;
+        }
 
-        /* 이미지 스트리밍 채널 (우측 상단) */
         #image-feed-channel { grid-column: 2; grid-row: 1; justify-content: center; align-items: center; }
         #status-image { 
             width: 100%; height: 100%; object-fit: cover; 
-            filter: grayscale(100%) contrast(120%) brightness(80%) sepia(20%) hue-rotate(150deg); /* 홀로그램 느낌 */
+            filter: grayscale(100%) contrast(120%) brightness(80%) sepia(20%) hue-rotate(150deg);
             opacity: 0.6;
         }
 
-        /* 시스템 로그 채널 (우측 하단) */
         #log-channel { grid-column: 2; grid-row: 2; padding: 40px 15px 15px; }
         #info-panel { border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 10px; font-size: 0.85rem; }
         #log-display { flex-grow: 1; font-size: 0.85rem; color: var(--hack-green); overflow-y: auto; line-height: 1.8; }
 
-        /* 타일 스타일 */
         .tile { 
             aspect-ratio: 1; background: #161a1f; border: 1px solid #252a30; 
             display: flex; justify-content: center; align-items: center; cursor: pointer; 
-            font-size: 1.2rem; font-family: var(--font-title); transition: 0.1s;
+            font-size: 0.9rem; font-family: var(--font-title); transition: 0.1s;
         }
         .tile.open { background: #000; border-color: #111; }
         .tile.open[data-dist="red"] { color: var(--hint-red); text-shadow: 0 0 8px var(--hint-red); }
@@ -99,7 +101,7 @@
 <div id="login-screen">
     <img src="https://your-github-path/steel-forest-logo.png" id="intro-image" alt="강철삼림" onclick="showCodes()">
     <div id="access-codes">
-        접속 코드 승인됨:<br>
+        승인된 접속 코드:<br>
         [ 저우진 ] - EASY MODE<br>
         [ 장한성 ] - NORMAL MODE<br>
         [ 치옌 ] - BOSS MODE
@@ -134,23 +136,21 @@
 
 <div id="result-screen">
     <h1 id="result-title" style="font-family:var(--font-title); font-size: 3rem; letter-spacing: 15px;">STATUS</h1>
-    <p id="result-msg" style="color:#ccc; margin: 20px 0;"></p>
+    <p id="result-msg" style="color:#ccc; margin: 20px 0; text-align: center;"></p>
     <button onclick="location.reload()" style="background:transparent; border:1px solid #fff; color:#fff; padding:10px 40px; cursor:pointer;">RE-ATTEMPT</button>
 </div>
 
 <script>
-    const ROWS = 10, COLS = 8, MINES = 12;
+    // 확장된 그리드 규격 (12행 15열)
+    const ROWS = 12, COLS = 15, MINES = 12;
     let grid = [], opened = [], targetPos = { r: 0, c: 0 };
     let gameActive = false, totalSeconds = 0, hintDuration = 3000, mainTimer, currentMode = "";
 
-    // 이미지 파일 경로 (사용자 깃허브 경로로 수정 필요)
     const IMG_PATH = "https://your-github-path/"; 
     const IMAGES = {
-        safe: IMG_PATH + "a.png",   // 숫자 없는 안전지대
-        warn: IMG_PATH + "b.png",   // 숫자 있는 안전지대
-        mine: IMG_PATH + "c.png",   // 조직원(지뢰)
-        target: IMG_PATH + "d.png", // 장청(타겟)
-        idle: IMG_PATH + "idle.png" // 대기 상태
+        safe: IMG_PATH + "a.png", warn: IMG_PATH + "b.png",
+        mine: IMG_PATH + "c.png", target: IMG_PATH + "d.png",
+        idle: IMG_PATH + "idle.png"
     };
 
     function showCodes() {
@@ -173,22 +173,29 @@
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('game-container').style.display = 'grid';
         document.getElementById('agent-display').innerText = `AGENT: ${name}`;
+        
+        // 그리드 컬럼 수 동적 적용
+        const gridEl = document.getElementById('grid');
+        gridEl.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+        
         setupBoard();
         startTimer();
-        addLogEntry("시스템 온라인. 데이터 스트리밍 시작.");
+        addLogEntry(`시스템 온라인. ${mode} 모드 프로토콜 가동.`);
     }
 
     function setupBoard() {
         grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
         opened = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
         let tSet = false, mSet = 0;
-        while (!tSet || mSet < MINES - 1) {
+        
+        while (!tSet || mSet < MINES) {
             let r = Math.floor(Math.random()*ROWS), c = Math.floor(Math.random()*COLS);
             if (grid[r][c] === 0) {
                 if (!tSet) { targetPos = {r, c}; grid[r][c] = 'T'; tSet = true; }
                 else { grid[r][c] = 'M'; mSet++; }
             }
         }
+
         for (let r=0; r<ROWS; r++) {
             for (let c=0; c<COLS; c++) {
                 if (grid[r][c] === 'M' || grid[r][c] === 'T') continue;
@@ -200,6 +207,7 @@
                 grid[r][c] = count;
             }
         }
+
         const gridEl = document.getElementById('grid');
         gridEl.innerHTML = '';
         for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
@@ -210,36 +218,34 @@
         }
     }
 
-    function addLogEntry(msg) {
-        const logEl = document.getElementById('log-display');
-        const entry = document.createElement('div');
-        entry.innerText = `▶ ${msg}`;
-        logEl.appendChild(entry);
-        logEl.scrollTop = logEl.scrollHeight;
-    }
-
-    function updateImageFeed(type) {
-        document.getElementById('status-image').src = IMAGES[type];
-    }
-
     async function handleClick(r, c) {
         if (!gameActive || opened[r][c]) return;
         
         const cell = grid[r][c];
+
         if (cell === 'T') {
             updateImageFeed('target');
-            addLogEntry("신호 감지: 타겟 장청 확인.");
-            reveal(r, c, "⚠️");
-        } else if (cell === 'M') {
+            if (currentMode === "BOSS") {
+                gameActive = false;
+                showResult(false, "MISSION FAILED", "장청에게 정체가 발각되었습니다.");
+                revealAll();
+            } else {
+                addLogEntry("신호 감지: 타겟 장청 확인.");
+                reveal(r, c, "⚠️");
+            }
+        } 
+        else if (cell === 'M') {
             updateImageFeed('mine');
             if (currentMode === "BOSS") {
-                addLogEntry("위협 요소 제거 완료.");
+                addLogEntry("위협 요소(조직원) 제거 완료.");
                 reveal(r, c, "✅");
             } else {
                 gameActive = false;
-                showResult(false, "ELIMINATED", "조직원에게 위치가 노출되었습니다.");
+                showResult(false, "ELIMINATED", "조직원에게 위치가 노출되었습니다. 추적 중단.");
+                revealAll();
             }
-        } else {
+        } 
+        else {
             cell === 0 ? updateImageFeed('safe') : updateImageFeed('warn');
             addLogEntry(cell === 0 ? "구역 스캔: 안전." : "구역 스캔: 인근 신호 감지.");
             reveal(r, c);
@@ -254,7 +260,7 @@
         el.classList.add('open');
         
         const dist = Math.sqrt(Math.pow(r-targetPos.r, 2) + Math.pow(c-targetPos.c, 2));
-        el.setAttribute('data-dist', dist <= 2.2 ? 'red' : (dist <= 4.3 ? 'orange' : 'blue'));
+        el.setAttribute('data-dist', dist <= 3 ? 'red' : (dist <= 6 ? 'orange' : 'blue'));
 
         if (icon) el.innerText = icon;
         else if (grid[r][c] > 0) {
@@ -264,14 +270,37 @@
         if (grid[r][c] === 0) for (let i=-1; i<=1; i++) for (let j=-1; j<=1; j++) reveal(r+i, c+j);
     }
 
+    function revealAll() {
+        for (let r=0; r<ROWS; r++) {
+            for (let c=0; c<COLS; c++) {
+                if (!opened[r][c]) {
+                    const el = document.getElementById(`t-${r}-${c}`);
+                    el.classList.add('open');
+                    if (grid[r][c] === 'T') el.innerText = "⚠️";
+                    else if (grid[r][c] === 'M') el.innerText = "×";
+                    else if (grid[r][c] > 0) el.innerText = grid[r][c];
+                }
+            }
+        }
+    }
+
     function checkWin() {
-        let safeLeft = 0, minesCleared = true, foundT = opened[targetPos.r][targetPos.c];
+        let safeLeft = 0, minesLeft = 0, foundT = opened[targetPos.r][targetPos.c];
         for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
             if (typeof grid[r][c] === 'number' && !opened[r][c]) safeLeft++;
-            if (grid[r][c] === 'M' && !opened[r][c]) minesCleared = false;
+            if (grid[r][c] === 'M' && !opened[r][c]) minesLeft++;
         }
-        if ((currentMode === "BOSS" && safeLeft === 0 && minesCleared) || (currentMode !== "BOSS" && foundT && safeLeft === 0)) {
-            showResult(true, "MISSION COMPLETE", "장청 확보 및 구역 제어 성공.");
+
+        if (currentMode === "BOSS") {
+            // 보스 모드: 장청 빼고 전부(안전지대+지뢰) 오픈 시 승리
+            if (safeLeft === 0 && minesLeft === 0) {
+                showResult(true, "MISSION COMPLETE", "구역 정화 완료 및 타겟 확보 성공.");
+            }
+        } else {
+            // 일반 모드: 장청 찾고 안전지대 모두 오픈 시 승리
+            if (foundT && safeLeft === 0) {
+                showResult(true, "MISSION COMPLETE", "장청 확보 및 구역 제어 성공.");
+            }
         }
     }
 
@@ -280,8 +309,24 @@
             totalSeconds--;
             const m = Math.floor(totalSeconds/60), s = totalSeconds%60;
             document.getElementById('global-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            if (totalSeconds <= 0) showResult(false, "SIGNAL LOST", "데이터 추적 시간 초과.");
+            if (totalSeconds <= 0) {
+                gameActive = false;
+                showResult(false, "SIGNAL LOST", "데이터 추적 시간 초과. 연결이 끊겼습니다.");
+                revealAll();
+            }
         }, 1000);
+    }
+
+    function addLogEntry(msg) {
+        const logEl = document.getElementById('log-display');
+        const entry = document.createElement('div');
+        entry.innerText = `▶ ${msg}`;
+        logEl.appendChild(entry);
+        logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function updateImageFeed(type) {
+        document.getElementById('status-image').src = IMAGES[type];
     }
 
     function showResult(isSuccess, title, msg) {
