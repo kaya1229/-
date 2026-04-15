@@ -121,7 +121,7 @@
 
     <div id="image-feed-channel" class="cctv-cell">
         <div class="cctv-label">CH 08 - IMAGE FEED</div>
-        <img id="status-image" src="https://your-github-path/idle.png">
+        <img id="status-image" src="idle.jpeg">
     </div>
 
     <div id="log-channel" class="cctv-cell">
@@ -146,11 +146,11 @@
     let grid = [], opened = [], targetPos = { r: 0, c: 0 };
     let gameActive = false, totalSeconds = 0, hintDuration = 3000, mainTimer, currentMode = "";
     let floodLimit = 5; // <--- 추가: 한 번에 확산될 최대 단계(깊이)
-    const IMG_PATH = "https://your-github-path/"; 
+    const IMG_PATH = "./"; 
     const IMAGES = {
-        safe: IMG_PATH + "a.png", warn: IMG_PATH + "b.png",
-        mine: IMG_PATH + "c.png", target: IMG_PATH + "d.png",
-        idle: IMG_PATH + "idle.png"
+        safe: IMG_PATH + "a.jpeg", warn: IMG_PATH + "b.jpeg",
+        mine: IMG_PATH + "c.gif", target: IMG_PATH + "d.PNG",
+        idle: IMG_PATH + "idle.jpeg"
     };
 
     function showCodes() {
