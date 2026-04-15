@@ -12,26 +12,25 @@
             --danger-red: #ff3e3e;
             --signal-green: #00ff88;
             --border-color: #2a3b4d;
-            --text-main: #e0e0e0;
         }
 
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: var(--bg-dark); font-family: 'Courier New', monospace;
-            overflow: hidden; color: var(--text-main);
+            background: var(--bg-dark); font-family: 'Courier New', Courier, monospace;
+            overflow: hidden; color: #e0e0e0;
         }
 
-        /* [UI] 기본 CCTV 스캔라인 */
+        /* CCTV 스캔라인 & 지지직거리는 효과 */
         body::after {
             content: " ";
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 3px, 2px 100%;
-            pointer-events: none; z-index: 200; opacity: 0.4;
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none; z-index: 500; opacity: 0.5;
         }
 
-        /* [스캔 레이어] */
+        /* 암호 스캔 레이어 */
         #scan-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: black; z-index: 100;
@@ -39,58 +38,76 @@
             mask-image: radial-gradient(circle 120px at var(--mask-x) var(--mask-y), black 20%, transparent 100%);
             -webkit-mask-image: radial-gradient(circle 120px at var(--mask-x) var(--mask-y), black 20%, transparent 100%);
         }
-        .hidden-hint { position: absolute; color: #111; font-size: 0.8rem; letter-spacing: 2px; z-index: 50; transition: color 0.4s; }
-        .scanned { color: var(--accent-blue) !important; text-shadow: 0 0 8px var(--accent-blue); }
+        .hidden-hint { position: absolute; color: #0a0a0a; font-size: 0.8rem; letter-spacing: 2px; z-index: 50; transition: color 0.4s; }
+        .scanned { color: var(--accent-blue) !important; text-shadow: 0 0 10px var(--accent-blue); }
 
-        /* [게임 본체 UI 복구] */
-        #game-container { 
-            display: none; width: 380px; background: var(--panel-bg); 
-            border: 1px solid var(--border-color); padding: 25px; 
-            position: relative; z-index: 5; margin: auto; margin-top: 8vh;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        /* 로그인 UI */
+        #login-screen { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 110; width: 320px; }
+        #login-screen h2 { color: var(--accent-blue); text-shadow: 0 0 10px rgba(0,229,255,0.5); letter-spacing: 5px; margin-bottom: 25px; }
+        #login-screen input { background: #000; border: 1px solid var(--accent-blue); color: var(--accent-blue); padding: 15px; text-align: center; width: 100%; outline: none; font-family: inherit; }
+
+        /* 메인 게임 컨테이너 (복구된 디자인) */
+        #game-container {
+            display: none; width: 380px; background: var(--panel-bg);
+            border: 2px solid var(--border-color); padding: 25px; 
+            position: relative; z-index: 10; margin: auto; margin-top: 5vh;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,229,255,0.05);
         }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        .timer-val { font-size: 1.6rem; color: var(--signal-green); font-weight: bold; }
-        #grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
-        .tile { aspect-ratio: 1; background: #16222c; border: 1px solid #253341; display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
-        .tile.open { background: var(--bg-dark); cursor: default; }
 
-        /* [결과 오버레이 - 강화형] */
+        header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .info-label { font-size: 0.6rem; color: #556a7d; letter-spacing: 1px; }
+        .info-value { font-size: 0.9rem; font-weight: bold; display: block; margin-top: 3px; }
+        .timer-val { font-size: 1.8rem; color: var(--signal-green); font-weight: bold; text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+
+        /* 그리드 디자인 */
+        #grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; background: #080d12; padding: 5px; border: 1px solid #1a2632; }
+        .tile {
+            aspect-ratio: 1; background: #16222c; border: 1px solid #253341;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; font-weight: bold; font-size: 1.2rem;
+            transition: all 0.1s; position: relative;
+        }
+        .tile:hover { background: #1f2f3d; }
+        .tile.open { background: var(--bg-dark); cursor: default; border-color: #0d151d; }
+
+        /* 거리 힌트 색상 (핵심 로직용) */
+        .hint-red { color: var(--danger-red) !important; text-shadow: 0 0 12px var(--danger-red); }
+        .hint-orange { color: #ffab40 !important; text-shadow: 0 0 8px #ffab40; }
+        .hint-blue { color: var(--accent-blue) !important; text-shadow: 0 0 8px var(--accent-blue); }
+        .hint-none { color: #222 !important; text-shadow: none !important; }
+
+        /* 시스템 로그 */
+        .system-log {
+            margin-top: 20px; background: #000; padding: 10px; font-size: 0.7rem;
+            color: var(--signal-green); border-left: 3px solid var(--signal-green);
+            height: 35px; overflow: hidden; line-height: 1.2;
+        }
+
+        /* 결과 화면 (강화된 연출) */
         #result-screen {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 300; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 600; flex-direction: column; justify-content: center; align-items: center;
             text-align: center; background: #000;
         }
-
-        /* 실패 시 붉은 경고등 깜빡임 연출 */
-        .fail-bg {
-            animation: pulse-red 2s infinite;
-        }
-        @keyframes pulse-red {
-            0%, 100% { box-shadow: inset 0 0 100px rgba(0,0,0,1); }
-            50% { box-shadow: inset 0 0 200px rgba(255, 0, 0, 0.4); }
-        }
-
-        /* 지지직거리는 노이즈 효과 */
-        .noise {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://upload.wikimedia.org/wikipedia/commons/b/b1/Static_noise.gif');
-            opacity: 0.05; pointer-events: none; mix-blend-mode: screen;
-        }
-
-        #result-title { font-size: 2.2rem; letter-spacing: 8px; margin-bottom: 15px; font-weight: 900; }
-        #result-msg { font-size: 1rem; color: #aaa; margin-bottom: 40px; max-width: 80%; line-height: 1.6; }
+        .noise-bg { position: absolute; width: 100%; height: 100%; background: url('https://upload.wikimedia.org/wikipedia/commons/b/b1/Static_noise.gif'); opacity: 0.08; mix-blend-mode: screen; pointer-events: none; }
         
-        /* 글자색 설정 */
-        .text-white { color: #ffffff !important; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-        .text-green { color: var(--signal-green) !important; text-shadow: 0 0 10px var(--signal-green); }
+        /* 실패 시 붉은 경고등 */
+        .fail-alert { animation: alert-pulse 1.5s infinite; }
+        @keyframes alert-pulse { 
+            0% { box-shadow: inset 0 0 50px rgba(0,0,0,1); }
+            50% { box-shadow: inset 0 0 300px rgba(255, 0, 0, 0.4); }
+            100% { box-shadow: inset 0 0 50px rgba(0,0,0,1); }
+        }
+
+        .result-title { font-size: 2.5rem; letter-spacing: 10px; font-weight: 900; margin-bottom: 20px; }
+        .text-white { color: #ffffff !important; text-shadow: 0 0 15px rgba(255,255,255,0.7); }
+        .text-green { color: var(--signal-green) !important; text-shadow: 0 0 15px var(--signal-green); }
 
         .retry-btn {
-            background: transparent; border: 1px solid #ffffff; color: #ffffff;
-            padding: 15px 40px; cursor: pointer; font-family: inherit; letter-spacing: 2px;
-            z-index: 310; transition: 0.3s;
+            background: transparent; border: 1px solid #fff; color: #fff; padding: 15px 50px;
+            cursor: pointer; font-family: inherit; letter-spacing: 3px; transition: 0.3s;
         }
-        .retry-btn:hover { background: #ffffff; color: #000; }
+        .retry-btn:hover { background: #fff; color: #000; box-shadow: 0 0 20px #fff; }
 
         .timer-red { color: var(--danger-red) !important; animation: blink 0.5s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
@@ -105,25 +122,30 @@
     <div class="hidden-hint" style="top:10%; left:75%">BOSS00 (HARD)</div>
 </div>
 
-<div id="login-screen" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 110; width: 300px;">
-    <h2 style="color:var(--accent-blue); letter-spacing: 3px;">SYSTEM LOGIN</h2>
-    <input type="text" id="pass-input" placeholder="ENTER CODE" style="background:#000; border:1px solid var(--accent-blue); color:var(--accent-blue); padding:15px; text-align:center; width:100%; outline:none;" autocomplete="off">
+<div id="login-screen">
+    <h2>DECODE ACCESS</h2>
+    <input type="text" id="pass-input" placeholder="PASSCODE REQUIRED" autocomplete="off">
 </div>
 
 <div id="game-container">
     <header>
-        <div><span style="font-size:0.6rem; color:#556a7d">AGENT</span><br><span id="agent-name" style="color:var(--accent-blue)">---</span></div>
-        <div style="text-align:center"><span style="font-size:0.6rem; color:#556a7d">TRACE</span><div id="global-timer" class="timer-val">00:00</div></div>
-        <div style="text-align:right"><span style="font-size:0.6rem; color:#556a7d">OBJ</span><br><span id="target-goal" style="color:var(--danger-red)">JANG CHENG</span></div>
+        <div><span class="info-label">AGENT</span><span class="info-value" id="agent-name" style="color:var(--accent-blue)">---</span></div>
+        <div style="text-align:center"><span class="info-label">SIG. TRACE</span><div id="global-timer" class="timer-val">00:00</div></div>
+        <div style="text-align:right"><span class="info-label">OBJECTIVE</span><span class="info-value" id="target-goal" style="color:var(--danger-red)">JANG CHENG</span></div>
     </header>
+
     <div id="grid"></div>
+
+    <div class="system-log" id="log-display">
+        [SYSTEM] 원격 접속 성공. 타겟 신호를 추적하십시오.
+    </div>
 </div>
 
 <div id="result-screen">
-    <div class="noise"></div>
-    <h1 id="result-title">MISSION STATUS</h1>
-    <p id="result-msg"></p>
-    <button class="retry-btn" onclick="location.reload()">RE-INITIALIZE</button>
+    <div class="noise-bg"></div>
+    <h1 id="result-title" class="result-title">STATUS</h1>
+    <p id="result-msg" style="max-width: 80%; line-height: 1.8; margin-bottom: 40px; color: #ccc;"></p>
+    <button class="retry-btn" onclick="location.reload()">RE-ATTEMPT</button>
 </div>
 
 <script>
@@ -137,9 +159,9 @@
     const passInput = document.getElementById('pass-input');
     const resultScreen = document.getElementById('result-screen');
 
+    // 1. 스캐너 기믹
     window.addEventListener('mousemove', handleMove);
     window.addEventListener('touchmove', handleMove);
-
     function handleMove(e) {
         const x = e.clientX || (e.touches && e.touches[0].clientX);
         const y = e.clientY || (e.touches && e.touches[0].clientY);
@@ -148,18 +170,18 @@
         overlay.style.setProperty('--mask-y', `${y}px`);
         document.querySelectorAll('.hidden-hint').forEach(hint => {
             const rect = hint.getBoundingClientRect();
-            if (Math.sqrt(Math.pow(x-(rect.left+rect.width/2),2) + Math.pow(y-(rect.top+rect.height/2),2)) < 100) hint.classList.add('scanned');
+            if (Math.sqrt(Math.pow(x-(rect.left+rect.width/2),2) + Math.pow(y-(rect.top+rect.height/2),2)) < 110) hint.classList.add('scanned');
             else hint.classList.remove('scanned');
         });
     }
 
+    // 2. 로그인 및 모드 설정
     passInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             const val = passInput.value.toUpperCase();
             if (val === 'ZHOU12') initGame("ZHOU JIN", 180, 8000, "EASY");
             else if (val === 'BRAIN9') initGame("ZHANG HAN-SUNG", 120, 4000, "NORMAL");
             else if (val === 'BOSS00') initGame("THE BOSS", 120, 1500, "BOSS");
-            else { passInput.value = ""; }
         }
     });
 
@@ -174,6 +196,7 @@
         startTimer();
     }
 
+    // 3. 지뢰 및 타겟 배치 로직
     function setupBoard() {
         grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
         opened = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
@@ -212,23 +235,18 @@
         }
     }
 
+    // 4. 클릭 및 거리 기반 힌트 로직 (복구)
     function handleClick(r, c) {
         if (!gameActive || opened[r][c] || flagged[r][c]) return;
+        
         if (currentMode === "BOSS") {
-            if (grid[r][c] === 'M' || grid[r][c] === 'T') showResult(false, "CONNECTION TERMINATED", "시스템 해킹 감지. 에이전트 위치가 노출되었습니다.");
+            if (grid[r][c] === 'M' || grid[r][c] === 'T') showResult(false, "CONNECTION TERMINATED", "시스템 해킹 감지. 에이전트의 위치가 적에게 노출되었습니다.");
             else { reveal(r, c); checkWin(); }
         } else {
-            if (grid[r][c] === 'T') showResult(true, "EXTRACTION SUCCESS", "타겟 확보 완료. 안전 구역으로 철수하십시오.");
-            else if (grid[r][c] === 'M') showResult(false, "SIGNAL COMPROMISED", "함정에 빠졌습니다. 현장에서 즉시 이탈하십시오.");
+            if (grid[r][c] === 'T') showResult(true, "EXTRACTION SUCCESS", "장청을 확보했습니다. 작전을 종료하고 복귀하십시오.");
+            else if (grid[r][c] === 'M') showResult(false, "SIGNAL COMPROMISED", "조직원의 함정에 걸렸습니다. 시스템 보안을 위해 통신을 차단합니다.");
             else reveal(r, c);
         }
-    }
-
-    function handleRightClick(r, c) {
-        if (!gameActive || opened[r][c]) return;
-        flagged[r][c] = !flagged[r][c];
-        document.getElementById(`t-${r}-${c}`).innerText = flagged[r][c] ? "🚩" : "";
-        if (currentMode === "BOSS") checkWin();
     }
 
     function reveal(r, c) {
@@ -237,13 +255,28 @@
         const el = document.getElementById(`t-${r}-${c}`);
         el.classList.add('open');
         if (grid[r][c] > 0) el.innerText = grid[r][c];
+
+        // 타겟(T)과의 거리 계산 (Euclidean Distance)
         const dist = Math.sqrt(Math.pow(r-targetPos.r, 2) + Math.pow(c-targetPos.c, 2));
-        let cls = dist <= 2.2 ? 'hint-red' : (dist <= 4.2 ? 'hint-orange' : 'hint-blue');
+        let cls = dist <= 2.2 ? 'hint-red' : (dist <= 4.3 ? 'hint-orange' : 'hint-blue');
         el.classList.add(cls);
-        setTimeout(() => { el.classList.remove('hint-red', 'hint-orange', 'hint-blue'); }, hintDuration);
+
+        // 일정 시간 후 힌트 사라짐
+        setTimeout(() => { 
+            el.classList.remove('hint-red', 'hint-orange', 'hint-blue');
+            el.classList.add('hint-none');
+        }, hintDuration);
+
         if (grid[r][c] === 0) {
             for (let i=-1; i<=1; i++) for (let j=-1; j<=1; j++) reveal(r+i, c+j);
         }
+    }
+
+    function handleRightClick(r, c) {
+        if (!gameActive || opened[r][c]) return;
+        flagged[r][c] = !flagged[r][c];
+        document.getElementById(`t-${r}-${c}`).innerText = flagged[r][c] ? "🚩" : "";
+        if (currentMode === "BOSS") checkWin();
     }
 
     function checkWin() {
@@ -255,7 +288,7 @@
                 if (typeof grid[r][c] === 'number' && !opened[r][c]) win = false;
             }
         }
-        if (win) showResult(true, "MISSION COMPLETE", "언더커버 장청과 접선했습니다.");
+        if (win) showResult(true, "MISSION COMPLETE", "구역 내 모든 조직원을 소탕했습니다. 완벽한 승리입니다.");
     }
 
     function startTimer() {
@@ -265,7 +298,7 @@
             const display = document.getElementById('global-timer');
             display.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
             if (totalSeconds <= 15) display.classList.add('timer-red');
-            if (totalSeconds <= 0) showResult(false, "TIME OVER", "통신 두절. 작전이 강제 종료되었습니다.");
+            if (totalSeconds <= 0) showResult(false, "SIGNAL LOST", "데이터 수신 시간이 초과되었습니다. 작전 실패.");
         }, 1000);
     }
 
@@ -273,15 +306,16 @@
         gameActive = false;
         clearInterval(mainTimer);
         resultScreen.style.display = 'flex';
-        document.getElementById('result-title').innerText = title;
+        const titleEl = document.getElementById('result-title');
+        titleEl.innerText = title;
         document.getElementById('result-msg').innerText = msg;
 
         if (isSuccess) {
-            resultScreen.classList.remove('fail-bg');
-            document.getElementById('result-title').className = 'text-green';
+            resultScreen.classList.remove('fail-alert');
+            titleEl.className = 'result-title text-green';
         } else {
-            resultScreen.classList.add('fail-bg');
-            document.getElementById('result-title').className = 'text-white';
+            resultScreen.classList.add('fail-alert');
+            titleEl.className = 'result-title text-white';
         }
     }
 </script>
