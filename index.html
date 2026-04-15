@@ -145,13 +145,16 @@
     const ROWS = 12, COLS = 15, MINES = 12;
     let grid = [], opened = [], targetPos = { r: 0, c: 0 };
     let gameActive = false, totalSeconds = 0, hintDuration = 3000, mainTimer, currentMode = "";
-    let floodLimit = 5; // <--- 추가: 한 번에 확산될 최대 단계(깊이)
-    const IMG_PATH = "./"; 
-    const IMAGES = {
-        safe: IMG_PATH + "a.jpeg", warn: IMG_PATH + "b.jpeg",
-        mine: IMG_PATH + "c.gif", target: IMG_PATH + "d.PNG",
-        idle: IMG_PATH + "idle.jpeg"
-    };
+    let floodLimit = 2; // <--- 추가: 한 번에 확산될 최대 단계(깊이)
+    // [수정] 각 상태별로 여러 개의 이미지를 배열로 등록
+const IMG_PATH = "./"; 
+const IMAGES = {
+    safe: ["a-1.png", "a-2.png", "a-3.png"],   // 예: 안전 구역 이미지 3개
+    warn: ["b-1.png", "b-2.png"],             // 예: 경고 구역 이미지 2개
+    mine: ["c.png"],                          // 지뢰는 기존대로
+    target: ["d.png"],                        // 타겟도 기존대로
+    idle: "idle.png"                          // 초기 화면
+};
 
     function showCodes() {
         document.getElementById('intro-image').style.display = 'none';
@@ -170,9 +173,9 @@
 
     function proceedLogin(name, time, hTime, mode) {
         gameActive = true; totalSeconds = time; hintDuration = hTime; currentMode = mode;
-        if (mode === "EASY") floodLimit = 6;
-    else if (mode === "NORMAL") floodLimit = 4;
-    else if (mode === "BOSS") floodLimit = 4;
+        if (mode === "EASY") floodLimit = 3;
+    else if (mode === "NORMAL") floodLimit = 2;
+    else if (mode === "BOSS") floodLimit = 2;
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('game-container').style.display = 'grid';
         document.getElementById('agent-display').innerText = `AGENT: ${name}`;
@@ -342,8 +345,18 @@ function reveal(r, c, icon = null, limit = floodLimit) {
     }
 
     function updateImageFeed(type) {
-        document.getElementById('status-image').src = IMAGES[type];
+    const targetImg = IMAGES[type];
+    const imgElement = document.getElementById('status-image');
+
+    if (Array.isArray(targetImg)) {
+        // 배열일 경우: 랜덤하게 하나 선택
+        const randomIndex = Math.floor(Math.random() * targetImg.length);
+        imgElement.src = IMG_PATH + targetImg[randomIndex];
+    } else {
+        // 단일 파일일 경우 (idle 등)
+        imgElement.src = IMG_PATH + targetImg;
     }
+}
 
     function showResult(isSuccess, title, msg) {
         gameActive = false;
