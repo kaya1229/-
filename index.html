@@ -595,25 +595,7 @@ function showCodes() {
 
     document.getElementById('pass-input').focus();
 }
-     document.addEventListener('fullscreenchange', () => {
-    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-    if (isMobile) return; // 모바일은 전체화면 감지 로직 제외
-
-    const pauseOverlay = document.getElementById('pause-overlay');
-    if (!document.fullscreenElement && gameActive) {
-        // 전체화면 탈출 시 -> 일시정지
-        gameActive = false;
-        clearInterval(mainTimer);
-        if (pauseOverlay) pauseOverlay.style.display = 'flex';
-        addLogEntry("SYSTEM PAUSED: 전체화면 이탈 감지.");
-    } else if (document.fullscreenElement && !gameActive && totalSeconds > 0) {
-        // 다시 복귀 시 -> 재개
-        gameActive = true;
-        startTimer();
-        if (pauseOverlay) pauseOverlay.style.display = 'none';
-        addLogEntry("SYSTEM RESUMED: 작전을 재개합니다.");
-    }
-});
+     
 
     document.getElementById('pass-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
