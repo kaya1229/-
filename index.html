@@ -217,73 +217,70 @@
 
         #result-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9000; flex-direction: column; justify-content: center; align-items: center; }
     /* 모바일 전용 반응형 설정 */
-/* 모바일 및 태블릿 대응 (너비 768px 이하) */
+/* [수정] 모바일 및 작은 화면 대응 (너비 768px 이하) */
 @media screen and (max-width: 768px) {
-    /* 1. 전체 컨테이너를 세로형으로 변경 */
+    /* 1. 로그인 전에는 절대로 보이지 않도록 설정 */
     #game-container {
-        display: flex;
+        /* display: flex; <- 이 줄을 삭제했습니다. */
         flex-direction: column;
-        width: 100vw;       /* 기기 너비 꽉 차게 */
-        height: 100vh;      /* 기기 높이 꽉 차게 */
+        width: 100vw;
+        height: 100vh;
         max-width: none;
         max-height: none;
-        border: none;       /* 모바일은 테두리 생략이 깔끔함 */
+        border: none;
         padding: 5px;
-        gap: 10px;
-        overflow-y: auto;   /* 내용이 길어지면 세로 스크롤 */
+        gap: 5px; /* 간격 축소 */
+        overflow-y: auto;
+        box-sizing: border-box;
     }
 
-    /* 2. 지뢰 판 영역 최적화 */
+    /* 2. 지뢰판 영역: 화면에 꽉 차게 */
     #main-game-channel {
-        order: 1;           /* 지뢰 판을 가장 위로 */
+        order: 1;
         padding: 10px 5px;
-        flex: 0 0 auto;     /* 높이 자동 조절 */
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    /* 3. 그리드 시스템 강제 조정 */
+    /* 3. 그리드 최적화: 15열 유지하며 꽉 차게 */
     #grid {
         width: 100% !important;
         max-width: 100% !important;
+        grid-template-columns: repeat(15, 1fr) !important;
+        gap: 2px;
         margin-top: 10px;
-        gap: 2px;           /* 타일 간격 최소화 */
     }
 
-    /* 4. 타일 크기 (화면 너비에 맞춰 자동 계산) */
     .tile {
-        font-size: 0.7rem;  /* 숫자가 크면 칸이 깨지므로 축소 */
-        min-width: 0;       /* 최소 크기 해제 */
+        font-size: 0.6rem; /* 숫자 크기 축소 */
     }
 
-    /* 5. 하단 채널들 배치 (이미지 피드 & 로그) */
+    /* 4. 이미지 피드: 네모 칸에 꽉 차게 */
     #image-feed-channel {
         order: 2;
-        height: 180px;      /* 이미지 영역은 작게 고정 */
-        min-height: 180px;
+        height: 250px; /* 높이 확보 */
+        min-height: 200px;
     }
 
+    #status-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* 이미지 비율 유지하며 꽉 채움 */
+        background: #000;
+    }
+
+    /* 5. 로그 채널 */
     #log-channel {
         order: 3;
-        height: 200px;      /* 로그 영역 고정 */
-        min-height: 200px;
+        height: 200px;
+        min-height: 150px;
         padding: 20px 10px 10px;
     }
 
-    /* 6. 타이머 및 UI 텍스트 크기 조정 */
     #global-timer {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
         top: 5px;
-        right: 10px;
-    }
-
-    .cctv-label {
-        font-size: 0.6rem;
-    }
-
-    /* 설명서 팝업 모바일 대응 */
-    #briefing-box {
-        width: 90%;
-        padding: 15px;
-        font-size: 0.85rem;
+        right: 15px;
     }
 }
         #instruction-overlay {
@@ -381,7 +378,7 @@
 
     <div id="image-feed-channel" class="cctv-cell">
         <div class="cctv-label">CH 08 - IMAGE FEED</div>
-        <img id="status-image" src="idle.jpeg">
+        <img id="status-image" src="idle.jpeg" style="width: 100%; height: 100%; object-fit: cover;">
     </div>
 
     <div id="log-channel" class="cctv-cell">
@@ -615,16 +612,24 @@ const BRIEFINGS = {
 
 function proceedLogin(name, time, hTime, mode) {
     // 1. 기본 설정 저장
-    gameActive = false; // 아직 게임 시작 안 함
+    gameActive = false;
     totalSeconds = time;
     hintDuration = hTime;
     currentMode = mode;
     
     floodLimit = (mode === "EASY") ? 3 : 2;
 
-    // 2. 화면 전환
+    // 2. 화면 전환 [핵심 수정 부분]
     document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('game-container').style.display = 'grid';
+    const gameContainer = document.getElementById('game-container');
+
+    // 현재 너비가 768px 이하이면 모바일용 flex, 아니면 PC용 grid 적용
+    if (window.innerWidth <= 768) {
+        gameContainer.style.display = 'flex';
+    } else {
+        gameContainer.style.display = 'grid';
+    }
+
     document.getElementById('agent-display').innerText = `AGENT: ${name}`;
     
     const gridEl = document.getElementById('grid');
