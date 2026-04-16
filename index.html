@@ -40,6 +40,8 @@
         flex-direction: column; 
         align-items: center; 
         margin-bottom: 20px;
+        width : 300px;
+        height : auto;
     }
 
     #logo-title {
@@ -50,6 +52,7 @@
 
     #intro-image {
         width: 300px; cursor: pointer; transition: 0.5s; 
+        position:relative;
         z-index: 2; /* 코드보다 위에 배치 */
         opacity: 0.85; 
         filter: grayscale(100%) screen invert(100%) sepia(100%) hue-rotate(180deg) saturate(200%);
@@ -61,7 +64,7 @@
         position: absolute; 
         top: 50%; left: 50%; 
         transform: translate(-50%, -50%);
-        width: 250px;
+        width: 90%;
         color: var(--accent-blue); 
         font-size: 0.85rem; 
         line-height: 1.8;
@@ -71,6 +74,7 @@
         padding: 15px; 
         border-radius: 4px;
         pointer-events: none;
+        text-align: center;
     }
 
     #logo-subtitle {
@@ -145,22 +149,159 @@
     #log-display::-webkit-scrollbar { display: none; }
 
     /* --- [4] 타일 및 기타 요소 --- */
-    .tile { aspect-ratio: 1 / 1; width: 100%; background: #161a1f; border: 1px solid #252a30; cursor: pointer; }
+    .tile { aspect-ratio: 1 / 1; width: 100%; background: #161a1f; border: 1px solid #252a30; cursor: pointer; font-size: 1.2rem; 
+    font-weight: bold;
+    font-family: var(--font-title);
+          line-height: 1;         /* 숫자를 세로 정중앙으로 배치 */
+    overflow: hidden;       /* 칸을 넘치는 이미지나 텍스트 숨김 */
+    user-select: none;      /* 클릭 시 텍스트 선택(파란 블록) 방지 */}
     .tile.open { background: #000; }
-    .tile.open[data-dist="red"] { color: var(--hint-red); text-shadow: 0 0 8px var(--hint-red); }
-    .tile.open[data-dist="orange"] { color: var(--hint-orange); text-shadow: 0 0 8px var(--hint-orange); }
-    .tile.open[data-dist="blue"] { color: var(--hint-blue); text-shadow: 0 0 8px var(--hint-blue); }
+    .tile.open[data-dist="red"] { color: var(--hint-red); font-size: 1.2rem; text-shadow: 0 0 8px var(--hint-red); }
+    .tile.open[data-dist="orange"] { color: var(--hint-orange);  font-size: 1.2rem; text-shadow: 0 0 8px var(--hint-orange); }
+    .tile.open[data-dist="blue"] { color: var(--hint-blue);  font-size: 1.4rem; text-shadow: 0 0 8px var(--hint-blue); }
 
-    #instruction-overlay, #result-screen {
-        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: #000; z-index: 9999; display: none; justify-content: center; align-items: center;
-    }
+    /* --- [5] 결과 화면 (이전 스타일 복구) --- */
+#result-screen {
+    display: none; /* JS에서 flex로 전환 */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.98); /* 거의 불투명한 검은색 */
+    z-index: 100000; /* 최상단 배치 */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: var(--font-title);
+    text-align: center;
+    animation: resultFadeIn 0.8s ease-out;
+}
 
-    #briefing-box {
-        width: 80%; max-width: 500px; padding: 30px;
-        border: 1px solid var(--accent-blue); background: #0d1013;
-        box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
-    }
+@keyframes resultFadeIn {
+    from { background: rgba(255, 0, 0, 0.3); opacity: 0; }
+    to { background: rgba(0, 0, 0, 0.98); opacity: 1; }
+}
+
+#result-screen h1 {
+    font-size: 4rem;
+    letter-spacing: 15px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 30px currentColor; /* 결과 색상에 맞춤 */
+}
+
+/* 승리 시 (MISSION COMPLETE) */
+#result-screen.win h1 {
+    color: var(--signal-green);
+}
+
+/* 패배 시 (MISSION FAILED) */
+#result-screen.lose h1 {
+    color: var(--danger-red);
+}
+
+#result-screen p {
+    font-size: 1.2rem;
+    color: #888;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+}
+
+#result-screen button {
+    background: transparent;
+    border: 1px solid currentColor;
+    color: inherit;
+    padding: 15px 60px;
+    font-family: var(--font-title);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+#result-screen button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 20px currentColor;
+}
+
+/* 결과창 전용 데이터 로그 (추가 디테일) */
+#result-stats {
+    margin-top: 30px;
+    font-family: var(--font-main);
+    color: #444;
+    font-size: 0.9rem;
+}
+
+    /* --- [4] 설명서 오버레이 (이전 스타일 복구) --- */
+#instruction-overlay {
+    position: fixed;
+    top: 0; left: 0; 
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.95); /* 완전 검은색에 가까운 배경 */
+    z-index: 9999;
+    display: none; /* JS에서 flex로 전환 */
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px); /* 배경 살짝 흐리게 */
+}
+
+#briefing-box {
+    width: 85%;
+    max-width: 500px;
+    padding: 40px;
+    border: 1px solid var(--accent-blue);
+    background: #0d1013;
+    box-shadow: 0 0 30px rgba(0, 229, 255, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.5);
+    text-align: left;
+    position: relative;
+}
+
+#briefing-title {
+    color: var(--accent-blue);
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+    margin-top: 0;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+    padding-bottom: 15px;
+    letter-spacing: 2px;
+}
+
+#briefing-content {
+    line-height: 1.8;
+    color: #ccc;
+    margin: 25px 0;
+    white-space: pre-wrap; /* 줄바꿈 유지 */
+    font-size: 0.95rem;
+}
+
+#briefing-close {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid var(--accent-blue);
+    color: var(--accent-blue);
+    cursor: pointer;
+    font-family: var(--font-title);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+}
+
+#briefing-close:hover {
+    background: var(--accent-blue);
+    color: #000;
+    box-shadow: 0 0 15px var(--accent-blue);
+}
+
+/* 설명서 박스에도 CCTV 느낌을 주기 위한 가상 요소 (선택사항) */
+#briefing-box::before {
+    content: "PRIORITY: RED";
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 0.7rem;
+    color: var(--danger-red);
+    font-family: var(--font-title);
+    opacity: 0.7;
+}
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
