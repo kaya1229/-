@@ -182,13 +182,15 @@
         #global-timer { position: absolute; top: 10px; right: 20px; font-family: var(--font-title); color: var(--signal-green); font-size: 1.8rem; text-shadow: 0 0 10px var(--signal-green); }
         
         /* 그리드 영역 확장 */
-        #grid { 
-            display: grid; 
-            gap: 4px; 
-            width: 100%; 
-            max-width: 750px; 
-            margin-top: 30px;
-        }
+       #grid { 
+    display: grid; 
+    /* 핵심: 15개의 열을 동일한 비율(1fr)로 생성 */
+    grid-template-columns: repeat(15, 1fr); 
+    gap: 4px; 
+    width: 100%; 
+    max-width: 800px; /* 화면에 맞춰 조절 */
+    margin: 20px auto;
+}
 
         #image-feed-channel { grid-column: 2; grid-row: 1; justify-content: center; align-items: center; }
         #status-image { 
@@ -218,10 +220,15 @@
 }
 
         .tile { 
-            aspect-ratio: 1; background: #161a1f; border: 1px solid #252a30; 
-            display: flex; justify-content: center; align-items: center; cursor: pointer; 
-            font-size: 0.9rem; font-family: var(--font-title); transition: 0.1s;
-        }
+    aspect-ratio: 1 / 1; /* 가로세로 1:1 비율 유지 */
+    width: 100%;        /* 부모 그리드 칸에 가득 채움 */
+    background: #161a1f; 
+    border: 1px solid #252a30; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    cursor: pointer; 
+}
         .tile.open { background: #000; border-color: #111; }
         .tile.open[data-dist="red"] { color: var(--hint-red); text-shadow: 0 0 8px var(--hint-red); }
         .tile.open[data-dist="orange"] { color: var(--hint-orange); text-shadow: 0 0 8px var(--hint-orange); }
@@ -740,13 +747,26 @@ function startGameAfterBriefing() {
         }
 
         const gridEl = document.getElementById('grid');
-        gridEl.innerHTML = '';
-        for (let r=0; r<ROWS; r++) for (let c=0; c<COLS; c++) {
+    gridEl.innerHTML = '';
+
+    // 1. CSS 그리드 스타일을 JS에서 직접 제어 (확실한 배치를 위해)
+    gridEl.style.display = 'grid';
+    gridEl.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`; // 15열 생성
+    gridEl.style.gap = '4px';
+
+    // 2. 타일 생성
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
             const div = document.createElement('div');
-            div.className = 'tile'; div.id = `t-${r}-${c}`;
+            div.className = 'tile'; 
+            div.id = `t-${r}-${c}`;
+            
+            // 클릭 이벤트 연결
             div.onclick = () => handleClick(r, c);
+            
             gridEl.appendChild(div);
         }
+    }
     }
 
     async function handleClick(r, c) {
