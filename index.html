@@ -155,12 +155,25 @@
         }
         #terminal-footer { margin-top: 30px; font-size: 0.7rem; color: #444; font-family: var(--font-title); }
 
-        #game-container {
-            display: none; width: 95vw; height: 90vh; max-width: 1200px;
-            background-color: var(--bg-dark); background-image: var(--texture-iron);
-            border: 15px solid #333; grid-template-columns: 1fr 350px; grid-template-rows: 1fr 1fr;
-            gap: 15px; padding: 20px; box-shadow: inset 0 0 50px #000;
-        }
+        document.addEventListener('fullscreenchange', () => {
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (isMobile) return; // 모바일은 전체화면 감지 로직 제외
+
+    const pauseOverlay = document.getElementById('pause-overlay');
+    if (!document.fullscreenElement && gameActive) {
+        // 전체화면 탈출 시 -> 일시정지
+        gameActive = false;
+        clearInterval(mainTimer);
+        if (pauseOverlay) pauseOverlay.style.display = 'flex';
+        addLogEntry("SYSTEM PAUSED: 전체화면 이탈 감지.");
+    } else if (document.fullscreenElement && !gameActive && totalSeconds > 0) {
+        // 다시 복귀 시 -> 재개
+        gameActive = true;
+        startTimer();
+        if (pauseOverlay) pauseOverlay.style.display = 'none';
+        addLogEntry("SYSTEM RESUMED: 작전을 재개합니다.");
+    }
+});
 
         .cctv-cell { background: #000; border: 1px solid #222; position: relative; overflow: hidden; display: flex; flex-direction: column; }
         .cctv-label { position: absolute; top: 8px; left: 10px; font-size: 0.7rem; color: #555; font-family: var(--font-title); z-index: 10; }
@@ -386,12 +399,10 @@
     <p>insta : @deokjilkkk</p>
 </div></div>
 
-<div id="instruction-overlay">
-    <div id="briefing-box">
-        <h2 id="briefing-title">MISSION BRIEFING</h2>
-        <div id="briefing-content"></div>
-        <button id="briefing-close" onclick="startGameAfterBriefing()">CONFIRM / START</button>
-    </div>
+<div id="instruction-overlay" style="display: flex; position: static; width: auto; height: auto; background: transparent;">
+    <div id="briefing-box" style="opacity: 0.3; pointer-events: none; transition: all 0.5s;"> <h2 id="briefing-title">MISSION BRIEFING</h2>
+        <div id="briefing-content">코드를 입력하면 미션 내용이 로드됩니다...</div>
+        <button id="briefing-close" onclick="startGameAfterBriefing()" disabled>CONFIRM / START</button> </div>
 </div>
 
 <div id="game-container">
@@ -602,7 +613,6 @@ function showCodes() {
     floodLimit = (mode === "EASY") ? 3 : 2;
 
     // 2. 화면 제어: 로그인창은 끄고, 설명서만 켭니다. (게임판은 아직 display: none 상태 유지)
-    document.getElementById('login-screen').style.display = 'none';
     
     // 3. 에이전트 정보 미리 세팅
     document.getElementById('agent-display').innerText = `AGENT: ${name}`;
@@ -648,22 +658,36 @@ const BRIEFINGS = {
 
 
 function showBriefing(mode) {
-    const overlay = document.getElementById('instruction-overlay');
+    const briefingBox = document.getElementById('briefing-box');
     const content = document.getElementById('briefing-content');
+    const startBtn = document.getElementById('briefing-close');
     
-    overlay.style.display = 'flex';
+    // 1. 설명서 박스를 밝게 만들고 클릭 가능하게 변경
+    briefingBox.style.opacity = "1";
+    briefingBox.style.pointerEvents = "auto";
+    briefingBox.style.boxShadow = "0 0 30px rgba(0, 229, 255, 0.5)"; // 광채 효과 추가
+    
+    // 2. 내용 채우기
     content.innerText = BRIEFINGS[mode];
     
-    // BOSS 모드면 설명서 박스 색상을 붉게/녹색으로 변경
+    // 3. 버튼 활성화
+    startBtn.disabled = false;
+    startBtn.style.background = "var(--accent-blue)";
+    startBtn.style.color = "#000";
+    startBtn.innerText = "ACCESS GRANTED - START";
+
+    // BOSS 모드 전용 색상 변경 (기존 유지)
     if(mode === "BOSS") {
-        document.getElementById('briefing-box').style.borderColor = "#00ff00";
+        briefingBox.style.borderColor = "#00ff00";
         document.getElementById('briefing-title').style.color = "#00ff00";
     }
 }
-
 function startGameAfterBriefing() {
+    // 로그인 화면과 설명서 화면 전체를 숨김
+    document.getElementById('login-screen').style.display = 'none';
     document.getElementById('instruction-overlay').style.display = 'none';
     
+    // 게임판 등장
     const gameContainer = document.getElementById('game-container');
     if (window.innerWidth <= 768) {
         gameContainer.style.display = 'flex';
@@ -671,17 +695,16 @@ function startGameAfterBriefing() {
         gameContainer.style.display = 'grid';
     }
 
-    // [중요] PC 환경에서만 전체화면 실행 (모바일 충돌 방지)
-    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-    if (!isMobile) {
+    gameActive = true;
+    startTimer();
+    addLogEntry(`시스템 온라인. ${currentMode} 모드 프로토콜 가동.`);
+    
+    // PC라면 전체화면 요청
+    if (!/Android|iPhone|iPad/i.test(navigator.userAgent)) {
         if (document.documentElement.requestFullscreen) {
             document.documentElement.requestFullscreen();
         }
     }
-
-    gameActive = true;
-    startTimer();
-    addLogEntry(`시스템 온라인. ${currentMode} 모드 프로토콜 가동.`);
 }
 
     function setupBoard() {
