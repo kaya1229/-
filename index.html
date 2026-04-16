@@ -259,20 +259,21 @@
     /* 3. 그리드 최적화: 15열 유지하며 꽉 차게 */
     #grid {
         width: 100% !important;
-        max-width: 100% !important; 
-        grid-template-columns: repeat(15, 1fr) !important;
-        gap: 1px;
-        margin-top: 10px;
+        gap: 2px;
+        
     }
 
     .tile {
         width: 100% !important; /* 부모(grid) 너비에 맞춤 */
         height: auto !important; /* 높이는 너비에 따라 자동 */
         aspect-ratio: 1 / 1; /* 정사각형 유지 */
-        font-size: 0.5rem !important; /* 숫자가 작아진 칸을 넘치지 않게 */
+        font-size: 0.8rem !important; /* 숫자가 작아진 칸을 넘치지 않게 */
         padding: 0;
         min-width: 0; /* 중요: 최소 크기 제한 해제 */
     }
+        .tile.fade{
+            color: #333 !important; /* 배경보다 살짝 밝은 회색으로 유지 */
+        text-shadow: none !important; }
 
     
 
@@ -291,10 +292,10 @@
     }
 }
         #instruction-overlay {
-    position: absolute;
+    position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.9);
-    z-index: 100;
+    z-index: 9999;
     display: none; /* 처음엔 숨김 */
     justify-content: center;
     align-items: center;
@@ -571,22 +572,34 @@ function showCodes() {
     }
 }
     function proceedLogin(name, time, hTime, mode) {
-        gameActive = true; totalSeconds = time; hintDuration = hTime; currentMode = mode;
-        if (mode === "EASY") floodLimit = 3;
-    else if (mode === "NORMAL") floodLimit = 2;
-    else if (mode === "BOSS") floodLimit = 2;
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('game-container').style.display = 'grid';
-        document.getElementById('agent-display').innerText = `AGENT: ${name}`;
-        
-        // 그리드 컬럼 수 동적 적용
-        const gridEl = document.getElementById('grid');
-        gridEl.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
-        
-        setupBoard();
-        startTimer();
-        addLogEntry(`시스템 온라인. ${mode} 모드 프로토콜 가동.`);
+    // 1. 기본 설정 저장
+    gameActive = false; // 설명서를 읽는 동안은 게임이 멈춰있어야 함
+    totalSeconds = time;
+    hintDuration = hTime;
+    currentMode = mode;
+    
+    floodLimit = (mode === "EASY") ? 3 : 2;
+
+    // 2. 화면 전환
+    document.getElementById('login-screen').style.display = 'none';
+    const gameContainer = document.getElementById('game-container');
+
+    // [중요] 화면 너비에 따라 레이아웃 방식을 동적으로 결정
+    if (window.innerWidth <= 768) {
+        gameContainer.style.display = 'flex';
+    } else {
+        gameContainer.style.display = 'grid';
     }
+
+    document.getElementById('agent-display').innerText = `AGENT: ${name}`;
+    
+    const gridEl = document.getElementById('grid');
+    gridEl.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+    
+    // 3. 보드 세팅 및 설명서 표시
+    setupBoard();
+    showBriefing(mode);
+}
     // 설명서 문구 데이터
 const BRIEFINGS = {
     EASY: `| 작전 목표 |
@@ -617,35 +630,7 @@ const BRIEFINGS = {
 3. 주의: 목표 완수 전 장청(⚠️)을 클릭하면 정체가 탄로 납니다!`
 };
 
-function proceedLogin(name, time, hTime, mode) {
-    // 1. 기본 설정 저장
-    gameActive = false;
-    totalSeconds = time;
-    hintDuration = hTime;
-    currentMode = mode;
-    
-    floodLimit = (mode === "EASY") ? 3 : 2;
 
-    // 2. 화면 전환 [핵심 수정 부분]
-    document.getElementById('login-screen').style.display = 'none';
-    const gameContainer = document.getElementById('game-container');
-
-    // 현재 너비가 768px 이하이면 모바일용 flex, 아니면 PC용 grid 적용
-    if (window.innerWidth <= 768) {
-        gameContainer.style.display = 'flex';
-    } else {
-        gameContainer.style.display = 'grid';
-    }
-
-    document.getElementById('agent-display').innerText = `AGENT: ${name}`;
-    
-    const gridEl = document.getElementById('grid');
-    gridEl.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
-    
-    // 3. 보드 세팅 및 설명서 표시
-    setupBoard();
-    showBriefing(mode);
-}
 
 function showBriefing(mode) {
     const overlay = document.getElementById('instruction-overlay');
