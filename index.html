@@ -416,6 +416,28 @@ const IMAGES = {
     target: ["d.gif"],                        // 타겟도 기존대로
     idle: "idle.png"                          // 초기 화면
 };
+    // [1단계] iTunes API 및 오디오 객체 설정
+const SEARCH_TERM = "张赫煊 我该"; 
+let audioObject = new Audio();
+audioObject.loop = true; // 무한 반복 재생
+
+async function fetchMusic() {
+    try {
+        // iTunes API에서 장혁선의 '我该' 검색
+        const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(SEARCH_TERM)}&entity=song&limit=1`);
+        const data = await response.json();
+        
+        if (data.results && data.results.length > 0) {
+            audioObject.src = data.results[0].previewUrl; // 미리보기 URL 설정
+            console.log("BGM 로드 완료: " + data.results[0].trackName);
+        }
+    } catch (e) {
+        console.error("음악 로드 중 오류 발생:", e);
+    }
+}
+
+// 페이지 로드 시 즉시 음악 정보를 가져옴
+fetchMusic();
 
     // 1. 하단 푸터 클릭 시 로고를 boss.jpeg로 변경
 // 하단 푸터 클릭 시 실행
@@ -434,6 +456,12 @@ function unlockHiddenPath() {
 
 // 2. 로고 클릭 시 실행 (isHiddenPathUnlocked 상태에 따라 텍스트 변경)
 function showCodes() {
+    // [2단계] 로고 클릭 시 음악 재생 시작
+    if (audioObject.src) {
+        audioObject.volume = 0.3; // 볼륨 30%
+        audioObject.play().catch(e => console.log("재생 대기 중..."));
+    }
+
     const codesArea = document.getElementById('access-codes');
     const introImg = document.getElementById('intro-image');
     
@@ -441,7 +469,6 @@ function showCodes() {
     codesArea.style.display = 'block';
 
     if (isHiddenPathUnlocked) {
-        // 푸터를 누른 뒤 로고를 눌렀을 때 (치옌 포함)
         codesArea.innerHTML = `
             승인된 접속 코드 (보안 등급: CRITICAL):<br>
             [ 저우진 ] - EASY MODE<br>
@@ -451,7 +478,6 @@ function showCodes() {
             </span>
         `;
     } else {
-        // 그냥 로고를 눌렀을 때
         codesArea.innerHTML = `
             승인된 접속 코드:<br>
             [ 저우진 ] - EASY MODE<br>
@@ -745,6 +771,9 @@ function reveal(r, c, icon = null, limit = floodLimit) {
     function showResult(isSuccess, title, msg) {
         gameActive = false;
         clearInterval(mainTimer);
+
+        audioObject.pause();
+        
         document.getElementById('result-screen').style.display = 'flex';
         document.getElementById('result-title').innerText = title;
         document.getElementById('result-title').style.color = isSuccess ? "var(--signal-green)" : "var(--danger-red)";
