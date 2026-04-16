@@ -233,28 +233,6 @@
         overflow-y: auto;
         box-sizing: border-box;
     }
-
-    /* 2. 지뢰판 영역: 화면에 꽉 차게 */
-    #main-game-channel {
-        order: 1;
-        padding: 10px 5px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* 3. 그리드 최적화: 15열 유지하며 꽉 차게 */
-    #grid {
-        width: 100% !important;
-        max-width: 100% !important;
-        grid-template-columns: repeat(15, 1fr) !important;
-        gap: 2px;
-        margin-top: 10px;
-    }
-
-    .tile {
-        font-size: 0.6rem; /* 숫자 크기 축소 */
-    }
-
     /* 4. 이미지 피드: 네모 칸에 꽉 차게 */
     #image-feed-channel {
         order: 2;
@@ -268,6 +246,35 @@
         object-fit: contain; /* 이미지 비율 유지하며 꽉 채움 */
         background: #000;
     }
+
+    /* 2. 지뢰판 영역: 화면에 꽉 차게 */
+    #main-game-channel {
+        padding: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden; /* 밖으로 튀어나오는 것 차단 */
+    }
+}
+
+    /* 3. 그리드 최적화: 15열 유지하며 꽉 차게 */
+    #grid {
+        width: 100% !important;
+        max-width: 100% !important; 
+        grid-template-columns: repeat(15, 1fr) !important;
+        gap: 1px;
+        margin-top: 10px;
+    }
+
+    .tile {
+        width: 100% !important; /* 부모(grid) 너비에 맞춤 */
+        height: auto !important; /* 높이는 너비에 따라 자동 */
+        aspect-ratio: 1 / 1; /* 정사각형 유지 */
+        font-size: 0.5rem !important; /* 숫자가 작아진 칸을 넘치지 않게 */
+        padding: 0;
+        min-width: 0; /* 중요: 최소 크기 제한 해제 */
+    }
+
+    
 
     /* 5. 로그 채널 */
     #log-channel {
